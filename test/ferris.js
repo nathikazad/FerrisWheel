@@ -103,7 +103,14 @@ contract('Ferris', function(accounts) {
     let actual = await ferris.getBid(accounts[0]);
     var expected = 2;
     assert.equal(actual, expected, "Value is not 2");
-    await ferris.withdraw();
+    let result = await ferris.withdraw();
+    assert.web3Event(result, {
+      event: 'WithdrewBid',
+        args: {
+          bidder: accounts[0],
+          amount: 2 
+      }
+    }, 'The event is emitted');
     actual = await ferris.getBid(accounts[0]);
     expected = 0;
     assert.equal(actual, expected, "Value is not 0");

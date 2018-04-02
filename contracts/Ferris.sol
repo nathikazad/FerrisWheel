@@ -12,6 +12,7 @@ contract Ferris {
   // Events that will be fired on changes.
   event NewBid(address bidder, uint amount);
   event AcceptedBid(address bidder, uint amount);
+  event WithdrewBid(address bidder, uint amount);
 
   /// Create a Ferris with a single beneficiary
   function Ferris() {
@@ -19,7 +20,7 @@ contract Ferris {
   }
 
   /// Bid for a ferris ride
-  function bid() payable {
+  function bid() payable returns (bool){
     bids[msg.sender] += msg.value;
     emit NewBid(msg.sender, msg.value);
   }
@@ -30,16 +31,18 @@ contract Ferris {
     uint amount = bids[msg.sender];
     bids[msg.sender] = 0;
     require(msg.sender.send(amount));
+    emit WithdrewBid(msg.sender, amount);
     return true;
   }
 
   /// Accept the funds of the chosen bidder
-  function accept(address chosenBidder, uint amount) {
+  function accept(address chosenBidder, uint amount) returns (bool){
     require (msg.sender == beneficiary);
     require (bids[chosenBidder] >= amount);
     require (beneficiary.send(amount));
     bids[chosenBidder] -= amount;
     emit AcceptedBid(chosenBidder, amount);
+    return true;
   }
   
   function getBid(address addr) public view returns(uint) {
