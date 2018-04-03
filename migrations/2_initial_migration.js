@@ -1,5 +1,5 @@
-var Ferris = artifacts.require("Ferris");
+var FerrisToken = artifacts.require("FerrisToken");
 
 module.exports = function(deployer) {
-  deployer.deploy(Ferris);
+  deployer.deploy(FerrisToken);
 };
