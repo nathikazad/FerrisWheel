@@ -1,5 +1,5 @@
 pragma solidity ^0.4.17;
-import 'zeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
+import './zeppelin/StandardToken.sol';
 
 contract FerrisToken is StandardToken {
 	string public name = 'FerrisToken';
@@ -11,4 +11,6 @@ contract FerrisToken is StandardToken {
 	  totalSupply_ = INITIAL_SUPPLY;
 	  balances[msg.sender] = INITIAL_SUPPLY;
 	}
+
+	//Make function to buy ferris tokens
 }

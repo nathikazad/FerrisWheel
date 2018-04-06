@@ -1,6 +1,5 @@
 pragma solidity ^0.4.17;
 
-import 'zeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 import './FerrisToken.sol';
 
 contract Ferris {
@@ -11,11 +10,11 @@ contract Ferris {
   // Allowed withdrawals of previous bids
   mapping(address => uint) bids;
 
-
+  uint numOfEventsEmitted = 0;
   // Events that will be fired on changes.
-  event NewBid(address bidder, uint amount);
-  event AcceptedBid(address bidder, uint amount);
-  event WithdrewBid(address bidder, uint amount);
+  event NewBid(uint eventId, address bidder, uint amount);
+  event AcceptedBid(uint eventId, address bidder, uint amount);
+  event WithdrewBid(uint eventId, address bidder, uint amount);
 
   /// Create a Ferris with a single beneficiary
   function Ferris(address ferrisTokenAddress) {
@@ -27,7 +26,8 @@ contract Ferris {
   function bid(uint amount) returns (bool){
     require(ferrisToken.transferFrom(msg.sender, this, amount));
     bids[msg.sender] += amount;
-    emit NewBid(msg.sender, amount);
+    NewBid(numOfEventsEmitted, msg.sender, amount);
+    numOfEventsEmitted++;
   }
 
   /// Withdraw amount.
@@ -36,7 +36,8 @@ contract Ferris {
     uint amount = bids[msg.sender];
     bids[msg.sender] = 0;
     require(ferrisToken.transfer(msg.sender, amount));
-    emit WithdrewBid(msg.sender, amount);
+    WithdrewBid(numOfEventsEmitted, msg.sender, amount);
+    numOfEventsEmitted++;
     return amount;
   }
 
@@ -46,7 +47,8 @@ contract Ferris {
     require (bids[chosenBidder] >= amount);
     require(ferrisToken.transfer(beneficiary, amount));
     bids[chosenBidder] -= amount;
-    emit AcceptedBid(chosenBidder, amount);
+    AcceptedBid(numOfEventsEmitted, chosenBidder, amount);
+    numOfEventsEmitted++;
     return true;
   }
   

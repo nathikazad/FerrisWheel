@@ -41,7 +41,7 @@ contract('Ferris', function(accounts) {
 
     it("should emit bid event correctly", async () => {
     let ferrisToken = await FerrisToken.deployed();
-    let ferris = await Ferris.deployed();
+    let ferris = await Ferris.new(ferrisToken.address);
     let actual = await ferris.getBid(accounts[0]);
     var bidAmount = 1;
     await ferrisToken.approve(ferris.address, bidAmount);
@@ -49,6 +49,7 @@ contract('Ferris', function(accounts) {
     assert.web3Event(result, {
       event: 'NewBid',
         args: {
+          eventId: 0,
           bidder: accounts[0],
           amount: bidAmount 
       }
@@ -82,7 +83,7 @@ contract('Ferris', function(accounts) {
 
     it("should emit accept events correctly", async () => {
     let ferrisToken = await FerrisToken.deployed();
-    let ferris = await Ferris.deployed();
+    let ferris = await Ferris.new(ferrisToken.address);
     var userAccount = web3.eth.coinbase;
     var bidAmount = 1;
     await ferrisToken.approve(ferris.address, bidAmount);
@@ -91,6 +92,7 @@ contract('Ferris', function(accounts) {
     assert.web3Event(result, {
       event: 'AcceptedBid',
         args: {
+          eventId: 1,
           bidder: userAccount,
           amount: bidAmount 
         }
@@ -204,6 +206,7 @@ contract('Ferris', function(accounts) {
     assert.web3Event(result, {
       event: 'WithdrewBid',
         args: {
+          eventId: 1,
           bidder: userAccount,
           amount: bidAmount 
       }
@@ -225,7 +228,6 @@ contract('Ferris', function(accounts) {
     }
     assert.fail('Expected throw not received');
   });
-
 
 
 });
