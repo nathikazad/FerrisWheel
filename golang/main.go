@@ -3,27 +3,188 @@ package main
 import (
 	"log"
 	"fmt"
-	"os"
 	"strings"
 	"sort"
 	"github.com/ethereum/go-ethereum/ethclient"
-	//"github.com/ethereum/go-ethereum/common"
-	//"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	//"time"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"os"
+	"math/big"
+	"context"
+	"github.com/ethereum/go-ethereum/core/types"
+	"net/http"
+	"github.com/gorilla/websocket"
+	"time"
 )
+
+type Bid struct {
+	address common.Address ;
+	amount int64;
+}
+
+var clients = make(map[*websocket.Conn]bool) // connected clients
+var broadcast = make(chan Message)           // broadcast channel
+
+// Configure the upgrader
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+// Define our message object
+type Message struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Message  string `json:"message"`
+}
 
 func main() {
 
+	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])
+	conn, auth, _, ferris, _ := ferrisSetup(os.Args[1], os.Args[2])
+	BidsChannelOut := make(chan []Bid)
+	BidsChannelIn := make(chan uint)
+
+	go ferrisEventListeners(ferris, BidsChannelIn, BidsChannelOut)
+	go runFerrisSimulator(conn, auth, ferris, BidsChannelIn, BidsChannelOut)
+
+	// Create a simple file server
+	fs := http.FileServer(http.Dir("public"))
+	http.Handle("/", fs)
+
+	// Configure websocket route
+	http.HandleFunc("/ws", handleConnections)
+
+	// Start listening for incoming chat messages
+	go handleMessages()
+
+	// Start the server on localhost port 8000 and log any errors
+	log.Println("http server started on :8000")
+	err := http.ListenAndServe(":8000", nil)
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
+
+	select {}
+}
+
+func handleConnections(w http.ResponseWriter, r *http.Request) {
+	// Upgrade initial GET request to a websocket
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Make sure we close the connection when the function returns
+	defer ws.Close()
+
+	// Register our new client
+	clients[ws] = true
+
+	for {
+		var msg Message
+		// Read in a new message as JSON and map it to a Message object
+		err := ws.ReadJSON(&msg)
+		if err != nil {
+			log.Printf("error: %v", err)
+			delete(clients, ws)
+			break
+		}
+		// Send the newly received message to the broadcast channel
+		broadcast <- msg
+	}
+}
+
+func handleMessages() {
+	for {
+		// Grab the next message from the broadcast channel
+		msg := <-broadcast
+		// Send it out to every client that is currently connected
+		for client := range clients {
+			err := client.WriteJSON(msg)
+			if err != nil {
+				log.Printf("error: %v", err)
+				client.Close()
+				delete(clients, client)
+			}
+		}
+	}
+}
+
+func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris *Ferris, bidsChannelIn chan uint, bidsChannelOut chan []Bid) {
+
+	newBidChannel := make(chan *FerrisNewBid)
+	_, err := ferris.WatchNewBid(nil,newBidChannel);
+	if err != nil {
+		log.Fatalf("could not watch for New Bid event: %v", err)
+	}
+
+	for {
+		bidsChannelIn <- 8
+		bids := <-bidsChannelOut
+		if (len(bids) > 0) {
+			if(len(bids) < 4) {
+				println("Not enough bids, waiting for 20 seconds for more bids")
+				timer := time.NewTimer(time.Second * 20)
+				select {
+				case <-newBidChannel:
+					continue
+				case <-timer.C:
+					println("Timer expired")
+					break
+				}
+			}
+			var transactions []*types.Transaction
+			nonce, err := conn.PendingNonceAt(context.Background(), auth.From)
+			if err != nil {
+				log.Fatalf("Nonce Error %v: ", err)
+			}
+			for index, bid := range (bids) {
+				transaction, err := ferris.Accept(&bind.TransactOpts{
+					From:     auth.From,
+					Signer:   auth.Signer,
+					GasLimit: 2381623,
+					Value:    big.NewInt(0),
+					Nonce:    big.NewInt(int64(nonce)),
+				}, bid.address, big.NewInt(bid.amount))
+				nonce++
+				if err != nil {
+					log.Fatalf("Accepting Bid Error address:%s %v: ", bid.address.String(), err)
+					bids = append(bids[:index], bids[index+1:]...)
+				} else {
+					transactions = append(transactions, transaction)
+					log.Printf("Bid Transaction initiated for address: %s for %d FT\n", bid.address.String(), bid.amount)
+				}
+			}
+			for index, transaction := range (transactions) {
+				receipt, err := bind.WaitMined(context.Background(), conn, transaction)
+				if err != nil {
+					log.Fatalf("Wait for mining error %s %v: ", bids[index].address.String(), err)
+				} else if receipt.Status == types.ReceiptStatusFailed {
+					log.Println("Accept Bid failed %s %v: ", bids[index].address.String(), err)
+					bids = append(bids[:index], bids[index+1:]...)
+				} else {
+					//msg := new Message{}
+					broadcast <- Message{Email:"gag", Username: bids[index].address.String(), Message: transaction.String()}
+				}
+			}
+		} else {
+			fmt.Println("Waiting for new bids, sim thread going to sleep")
+			<-newBidChannel
+			fmt.Println("New Bid, Sim thread awake")
+		}
+	}
+}
+
+func ferrisSetup(arg1 string, arg2 string) (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris, common.Address) {
 	var key string
 	var conn *ethclient.Client
-
+	var auth *bind.TransactOpts
 	var err error
-	var address common.Address
+	var address, ferrisAddress common.Address
 	var ferris *Ferris;
 	var ferrisToken *FerrisToken;
-	switch os.Args[1] {
+	switch arg1 {
 	case "local":
 		key = `{"address":"627306090abab3a6e1400e9345bc60c78a8bef57","crypto":{"cipher":"aes-128-ctr","ciphertext":"c5789188e6009914f45c1d280cc54099e7622e469e59f1e3d4dce83135d57b40","cipherparams":{"iv":"5805aeaa8fa6e167a609c38bdc4e70ae"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"37ebb28452e322aa1976931cfbfda8fb3d3799b2f52e5511ab4a3b595f00aa4d"},"mac":"aa3cb8f0ce2f647d1fdf9cbadf161913804885361e86ffa334f9343b6cda25b1"},"id":"a72cc19d-2f5d-4017-b003-ff42c93bd12c","version":3}`
 		conn, err = ethclient.Dial("http://localhost:7545")
@@ -38,18 +199,19 @@ func main() {
 		}
 	}
 
-	switch os.Args[2] {
+	auth, err = bind.NewTransactor(strings.NewReader(key), "speakers")
+
+	switch arg2 {
 	case "new":
-		auth, err := bind.NewTransactor(strings.NewReader(key), "speakers")
 		if err != nil {
 			log.Fatalf("could not create auth: %v", err)
 		}
 		address, _, ferrisToken, err = DeployFerrisToken(auth, conn)
-		address, _, ferris, err = DeployFerris(auth, conn, address)
+		ferrisAddress, _, ferris, err = DeployFerris(auth, conn, address)
 		if err != nil {
 			log.Fatalf("could not deploy Ferris ferris: %v", err)
 		}
-		fmt.Printf("address:%s\n" , address.String())
+		fmt.Printf("address:%s\n" , ferrisAddress.String())
 	case "existing":
 		ferris, err = NewFerris(common.HexToAddress("0x2328ef76C4c55B317573f176b3C751522e7acFD7"), conn)
 		address, _ = ferris.GetFerrisTokenAddress(nil)
@@ -58,166 +220,165 @@ func main() {
 			log.Fatalf("could not find ferris: %v", err)
 		}
 	}
-
 	beneficiary, _ := ferris.Beneficiary(nil)
 	fmt.Printf("beneficiary: %s \n", beneficiary.String())
 	balance, _ := ferrisToken.BalanceOf(nil, beneficiary)
 	fmt.Printf("balance: %s \n", balance.String())
-	//key = `{"address":"ffe81cf3f971e48ce690d262d37d39838bc620f1","crypto":{"cipher":"aes-128-ctr","ciphertext":"2d08b5f9e81f8e346e59dedc13723c257aeb0850e9140489f297401c322b1049","cipherparams":{"iv":"927120e59b87ed47444529e85165f0e9"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"4de12e1927befebd0d5500766d1846c89ea81f2f483ba46a35819e4d650d0ef6"},"mac":"822f3e91df839f3c43cbfc138d2689c0f634feeee78e2d19698d34be3c28683f"},"id":"63a627c0-5acc-44d1-b47c-caa490083175","version":3}`
-	//auth, err := bind.NewTransactor(strings.NewReader(key), "password")
-	//_ , err = ferris.Bid(&bind.TransactOpts{
-	//		From:     auth.From,
-	//		Signer:   auth.Signer,
-	//		GasLimit: 2381623,
-	//		Value:    big.NewInt(0),
-	//	}, big.NewInt(1))
-	//if err != nil {
-	//	log.Fatalf("could not find ferris: %v", err)
-	//}
+	return conn, auth, ferrisToken, ferris ,ferrisAddress
+}
 
-		// ** EVENT START
-		//c1 := make(chan *FerrisNewBid)
-		//_, err = ferris.WatchNewBid(nil,c1);
-		//if err != nil {
-		//	log.Fatalf("could not watch event: %v", err)
-		//}
-		//for {
-		//	msg := <- c1
-		//	fmt.Println(msg.Amount.String())
-		//	time.Sleep(time.Second * 1)
-		//}
-		// ** EVENT END
-		//transaction, err := ferris.Bet(&bind.TransactOpts{
-		//	From:     auth.From,
-		//	Signer:   auth.Signer,
-		//	GasLimit: 2381623,
-		//	Value:    big.NewInt(int64(math.Pow10(17))),
-		//}, big.NewInt(1))
-		//
-		//if err != nil {
-		//	log.Fatalf("could not bet: %v", err)
-		//}
-		//fmt.Printf("total bet: %s\n", transaction.String())
-		//
-		//total, _ = ferris.TotalBet(nil)
-		//fmt.Printf("total bet: %s\n", total)
-	transactions, lastEventId := calculateBalances(ferris)
-	for _, transaction := range transactions {
-		fmt.Printf("Bid:%s %d \n", transaction.address, transaction.amount);
+func ferrisEventListeners(ferris *Ferris, bidsChannelIn chan uint, bidsChannelOut chan []Bid){
+	bids, lastEventId := calculateBids(ferris)
+	for _, bid := range bids {
+		fmt.Printf("Bid:%s %d \n", bid.address.String(), bid.amount);
 	}
 
 	newBidChannel := make(chan *FerrisNewBid)
-	_, err = ferris.WatchNewBid(nil,newBidChannel);
+	_, err := ferris.WatchNewBid(nil, newBidChannel);
 	if err != nil {
 		log.Fatalf("could not watch for New Bid event: %v", err)
 	}
 
 	acceptedBidChannel := make(chan *FerrisAcceptedBid)
-	_, err = ferris.WatchAcceptedBid(nil,acceptedBidChannel);
+	_, err = ferris.WatchAcceptedBid(nil, acceptedBidChannel);
 	if err != nil {
 		log.Fatalf("could not watch for accepted Bid event: %v", err)
 	}
 
 	withdrewBidChannel := make(chan *FerrisWithdrewBid)
-	_, err = ferris.WatchWithdrewBid(nil,withdrewBidChannel);
+	_, err = ferris.WatchWithdrewBid(nil, withdrewBidChannel);
 	if err != nil {
 		log.Fatalf("could not watch for withdrew Bid event: %v", err)
 	}
 
+
 	for {
 		select {
 		case msg := <-newBidChannel:
-			if( msg.EventId.Uint64() > lastEventId) {
-				fmt.Printf("\nNew Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
-				transactions, lastEventId = calculateBalances(ferris)
+			if (msg.EventId.Uint64() > lastEventId) {
+				fmt.Printf("New Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
+				fmt.Println("New message inside event thread")
+				if msg.EventId.Uint64() == (lastEventId + 1) && msg.Amount.Int64() > 0 {
+					bids = Sum(bids, Bid{msg.Bidder, msg.Amount.Int64()})
+					Sort(bids)
+					lastEventId++
+				} else {
+					bids, lastEventId = calculateBids(ferris)
+				}
 			}
 		case msg := <-acceptedBidChannel:
-			if( msg.EventId.Uint64() > lastEventId) {
-				fmt.Printf("\nAccepted Bid:%s %s \n\n", msg.Bidder.String(), msg.Amount.String());
-				transactions, lastEventId = calculateBalances(ferris)
+			if (msg.EventId.Uint64() > lastEventId) {
+				fmt.Printf("Accepted Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
+				if (msg.EventId.Uint64() == (lastEventId + 1)) {
+					bids = Sum(bids, Bid{msg.Bidder, -msg.Amount.Int64()})
+					Sort(bids)
+					lastEventId++
+				} else {
+					bids, lastEventId = calculateBids(ferris)
+				}
 			}
 		case msg := <-withdrewBidChannel:
-			if( msg.EventId.Uint64() > lastEventId) {
-				fmt.Printf("\nWithdrew Bid:%s %s \n\n", msg.Bidder.String(), msg.Amount.String());
-				transactions, lastEventId = calculateBalances(ferris)
+			if (msg.EventId.Uint64() > lastEventId) {
+				fmt.Printf("Withdrew Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
+				if (msg.EventId.Uint64() == (lastEventId + 1)) {
+					bids = Sum(bids, Bid{msg.Bidder, -msg.Amount.Int64()})
+					Sort(bids)
+					lastEventId++
+				} else {
+					bids, lastEventId = calculateBids(ferris)
+				}
 			}
+		case numOfRequestedBids := <-bidsChannelIn:
+			if (numOfRequestedBids > uint(len(bids))) {
+				numOfRequestedBids = uint(len(bids))
+			}
+			bidsChannelOut <- bids[:numOfRequestedBids]
 		}
-
 	}
 }
 
-type Transaction struct {
-	address string ;
-	amount uint64;
-}
-
-func calculateBalances(ferris *Ferris) ([]Transaction, uint64) {
-	var transactions []Transaction
+func calculateBids(ferris *Ferris) ([]Bid, uint64) {
+	var bids []Bid
 	iter1, _ := ferris.FilterNewBid(nil);
 	var lastEventId uint64 = 0
 	for iter1.Next() {
-		transactions = Add(transactions, Transaction{iter1.Event.Bidder.String(), iter1.Event.Amount.Uint64()})
-		if iter1.Event.EventId.Uint64() > lastEventId {
-			lastEventId = iter1.Event.EventId.Uint64()
-		}
+		bids = Sum(bids, Bid{iter1.Event.Bidder, iter1.Event.Amount.Int64()})
+		lastEventId = setIfGreater(iter1.Event.EventId.Uint64(), lastEventId)
 	}
 	iter2, _ := ferris.FilterAcceptedBid(nil);
 	for iter2.Next() {
-		transactions = Subtract(transactions, Transaction{iter2.Event.Bidder.String(), iter2.Event.Amount.Uint64()})
-		if iter2.Event.EventId.Uint64() > lastEventId {
-			lastEventId = iter2.Event.EventId.Uint64()
-		}
+		bids = Sum(bids, Bid{iter2.Event.Bidder, -iter2.Event.Amount.Int64()})
+		lastEventId = setIfGreater(iter2.Event.EventId.Uint64(), lastEventId)
 	}
 	iter3, _ := ferris.FilterWithdrewBid(nil);
 	for iter3.Next() {
-		transactions = Subtract(transactions, Transaction{iter3.Event.Bidder.String(), iter3.Event.Amount.Uint64()})
-		if iter3.Event.EventId.Uint64() > lastEventId {
-			lastEventId = iter3.Event.EventId.Uint64()
-		}
+		bids = Sum(bids, Bid{iter3.Event.Bidder, -iter3.Event.Amount.Int64()})
+		lastEventId = setIfGreater(iter3.Event.EventId.Uint64(), lastEventId)
 	}
-	transactions = Sort(transactions)
-	for _, transaction := range transactions {
-		fmt.Printf("Bid:%s %d s\n", transaction.address, transaction.amount);
-	}
-	return transactions, lastEventId;
+	bids = Sort(bids)
+	return bids, lastEventId;
 }
 
-func Add(transactions []Transaction, newTransaction Transaction) ([]Transaction) {
+func Sum(bids []Bid, newBid Bid) ([]Bid) {
+	if newBid.amount == 0 {
+		return bids
+	}
 	index := -1
-	for i , transaction := range transactions {
-		if (newTransaction.address == transaction.address) {
+	for i , bid := range bids {
+		if (newBid.address == bid.address) {
 			index = i;
 			break;
 		}
 	}
 	if index >= 0 {
-		transactions[index].amount += newTransaction.amount
+		bids[index].amount += newBid.amount
+		if bids[index].amount <= 0 {
+			bids = append(bids[:index], bids[index+1:]...)
+		}
 	} else {
-		transactions = append(transactions, newTransaction)
+		bids = append(bids, newBid)
 	}
-	return transactions;
+
+	return bids;
 }
 
-func Subtract(transactions []Transaction, newTransaction Transaction) ([]Transaction) {
-	index := -1
-	for i , transaction := range transactions {
-		if (newTransaction.address == transaction.address) {
-			index = i;
-			break;
-		}
-	}
-	if index >= 0 {
-		transactions[index].amount -= newTransaction.amount
-		if transactions[index].amount <= 0 {
-			transactions = append(transactions[:index], transactions[index+1:]...)
-		}
-	}
-	return transactions;
-}
-
-func Sort(transactions []Transaction) ([]Transaction) {
+func Sort(transactions []Bid) ([]Bid) {
 	sort.Slice(transactions, func(i, j int) bool {
 		return transactions[i].amount > transactions[j].amount
 	});
 	return transactions;
 }
+
+func setIfGreater(newEventId uint64, lastEventId uint64)(uint64) {
+	if newEventId > lastEventId {
+		return newEventId
+	} else {
+		return lastEventId
+	}
+}
+
+
+//transaction, err := ferrisToken.Approve(&bind.TransactOpts{
+//From:     auth.From,
+//Signer:   auth.Signer,
+//GasLimit: 2381623,
+//Value:    big.NewInt(0),
+//}, ferrisAddress, big.NewInt(1))
+//
+//transaction, err = ferris.Bid(&bind.TransactOpts{
+//From:     auth.From,
+//Signer:   auth.Signer,
+//GasLimit: 2381623,
+//Value:    big.NewInt(0),
+//}, big.NewInt(1))
+//
+//if err != nil {
+//log.Fatalf("could not bet: %v", err)
+//}
+//fmt.Printf("Transaction: %s\n", transaction.String())
+//
+//time.Sleep(2 * time.Second)
+//transactionChannelIn <- 2
+//transactions := <- transactionChannelOut
+//receipt, err := bind.WaitMined(context.Background(), conn, transaction)
+//fmt.Printf("Mined %d\n", receipt.Status)
