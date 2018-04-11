@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"github.com/gorilla/websocket"
 	"time"
+	"strconv"
 )
 
 type Bid struct {
@@ -34,9 +35,8 @@ var upgrader = websocket.Upgrader{
 
 // Define our message object
 type Message struct {
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Message  string `json:"message"`
+	Method   string `json:"method"`
+	Arg0     string `json:"arg0"`
 }
 
 func main() {
@@ -122,17 +122,19 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 	for {
 		bidsChannelIn <- 8
 		bids := <-bidsChannelOut
-		if (len(bids) > 0) {
-			if(len(bids) < 4) {
-				println("Not enough bids, waiting for 20 seconds for more bids")
-				timer := time.NewTimer(time.Second * 20)
+		if len(bids) > 0 {
+			if len(bids) <= 4 {
+				fmt.Println("Not enough Bids, waiting for a few more")
+				broadcast <- Message{Method:"Not enough bids", Arg0: "waiting for 10 seconds"}
+				timer := time.NewTimer(time.Second * 10)
 				select {
 				case <-newBidChannel:
+					timer.Stop()
 					continue
-				case <-timer.C:
-					println("Timer expired")
-					break
+				case <- timer.C:
+					fmt.Println("Timer Expired")
 				}
+
 			}
 			var transactions []*types.Transaction
 			nonce, err := conn.PendingNonceAt(context.Background(), auth.From)
@@ -164,13 +166,16 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 					log.Println("Accept Bid failed %s %v: ", bids[index].address.String(), err)
 					bids = append(bids[:index], bids[index+1:]...)
 				} else {
-					//msg := new Message{}
-					broadcast <- Message{Email:"gag", Username: bids[index].address.String(), Message: transaction.String()}
+					transaction.ChainId()
 				}
+				broadcast <- Message{Method:"load", Arg0: strconv.Itoa(index)}
 			}
+
+			broadcast <- Message{Method:"spin", Arg0: ""}
 		} else {
 			fmt.Println("Waiting for new bids, sim thread going to sleep")
 			<-newBidChannel
+			//Race condition
 			fmt.Println("New Bid, Sim thread awake")
 		}
 	}
