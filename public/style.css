@@ -14,3 +14,51 @@ main {
     width: 100%;
     overflow-y: scroll;
 }
+
+div#Wheel {
+	position: absolute;
+    top: 1.5%;
+    left: 1.5%;
+    transform: rotateZ(0deg);
+    padding-top: 0.5%;
+}
+div#Chair1 {
+	position: absolute;
+	top: 3%;
+	left: 3%;
+}
+div#Chair2 {
+	position: absolute;
+	top: 37%;
+	left: -12%;
+}
+div#Chair3 {
+	position: absolute;
+	top: -11%;
+	left: 36%;
+}
+div#Chair4 {
+	position: absolute;
+	top: 3%;
+	left: 72%;
+}
+div#Chair5 {
+	position: absolute;
+	top: 36%;
+	left: 88%;
+}
+div#Chair6 {
+	position: absolute;
+	top: 70%;
+	left: 70%;
+}
+div#Chair7 {
+	position: absolute;
+	top: 84%;
+	left: 37%;
+}
+div#Chair8 {
+	position: absolute;
+	top: 70%;
+	left: 2%;
+}

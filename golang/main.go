@@ -134,7 +134,6 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 				case <- timer.C:
 					fmt.Println("Timer Expired")
 				}
-
 			}
 			var transactions []*types.Transaction
 			nonce, err := conn.PendingNonceAt(context.Background(), auth.From)
@@ -158,6 +157,7 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 					log.Printf("Bid Transaction initiated for address: %s for %d FT\n", bid.address.String(), bid.amount)
 				}
 			}
+			start := time.Now()
 			for index, transaction := range (transactions) {
 				receipt, err := bind.WaitMined(context.Background(), conn, transaction)
 				if err != nil {
@@ -170,11 +170,15 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 				}
 				broadcast <- Message{Method:"load", Arg0: strconv.Itoa(index)}
 			}
-
+			fmt.Printf("Bids Accepted in %d seconds \n", int(time.Now().Sub(start).Seconds()))
 			broadcast <- Message{Method:"spin", Arg0: ""}
+			timer := time.NewTimer(time.Second * 10)
+			<- timer.C
 		} else {
 			fmt.Println("Waiting for new bids, sim thread going to sleep")
 			<-newBidChannel
+			timer := time.NewTimer(time.Second * 2)
+			<- timer.C
 			//Race condition
 			fmt.Println("New Bid, Sim thread awake")
 		}

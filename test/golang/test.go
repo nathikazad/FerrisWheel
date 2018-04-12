@@ -18,7 +18,7 @@ import (
 
 var ferrisAddress = common.HexToAddress("0x2328ef76C4c55B317573f176b3C751522e7acFD7")
 func main() {
-
+	start := time.Now()
 	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])
 	conn, mainAuth, ferrisToken, ferris := ferrisSetup()
 	var transactions []*types.Transaction
@@ -35,14 +35,14 @@ func main() {
 		newAuth := bind.NewKeyedTransactor(key)
 		auths = append(auths, newAuth)
 
-		fmt.Printf("New address created %s\n", newAuth.From.String())
+		fmt.Printf("New address created %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 
 		gasPrice, err := conn.SuggestGasPrice(context.Background())
 		if err != nil {
 			log.Fatalf("Gas estimation Error %v: ", err)
 		}
 
-		rawTx := types.NewTransaction(nonce, newAuth.From, big.NewInt(1000000000000000), 2381623, gasPrice, nil)
+		rawTx := types.NewTransaction(nonce, newAuth.From, big.NewInt(10000000000000000), 2381623, gasPrice, nil)
 		nonce++
 		signedTx, err := mainAuth.Signer(types.HomesteadSigner{}, mainAuth.From, rawTx)
 		if err != nil {
@@ -52,7 +52,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Send transaction Error %v: ", err)
 		} else {
-			fmt.Printf("Ether Transfer requested  %s\n", newAuth.From.String())
+			fmt.Printf("Ether Transfer requested  %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 		}
 
 		ftValue := r1.Int63n(9) + 1
@@ -68,7 +68,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Ferris Token Transferring error:%s %v: ", newAuth.From.String(), err)
 		} else {
-			fmt.Printf("Ferris Token Transfer requested  %s\n", newAuth.From.String())
+			fmt.Printf("Ferris Token Transfer requested  %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 		}
 		transactions = append(transactions, transaction)
 
@@ -81,7 +81,7 @@ func main() {
 		} else if receipt.Status == types.ReceiptStatusFailed {
 			log.Println("FT Transfer failed %s %v: ", newAuth.From.String(), err)
 		} else {
-			fmt.Printf("FT Transfer request fulfilled %s\n", newAuth.From.String())
+			fmt.Printf("FT Transfer request fulfilled %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 		}
 
 		nonce, err := conn.PendingNonceAt(context.Background(), newAuth.From)
@@ -100,7 +100,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Ferris Token Approving error:%s %v: ", newAuth.From.String(), err)
 		} else {
-			fmt.Printf("Approval requested  %s\n", newAuth.From.String())
+			fmt.Printf("Approval requested  %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 		}
 
 		transaction, err = ferris.Bid(&bind.TransactOpts{
@@ -114,7 +114,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Ferris Token Wait bidding error error:%s %v: ", newAuth.From.String(), err)
 		} else {
-			fmt.Printf("Bid requested %s\n", newAuth.From.String())
+			fmt.Printf("Bid requested %s %d\n", newAuth.From.String(), int(time.Now().Sub(start).Seconds()))
 		}
 		transactions[i] = transaction
 	}
@@ -128,7 +128,7 @@ func main() {
 		} else if receipt.Status == types.ReceiptStatusFailed {
 			log.Println("Bidding failed %s %v: ", newAuth.From.String(), err)
 		} else {
-			fmt.Printf("Bid request fulfilled %s %d\n", newAuth.From.String(), randNumbers[i])
+			fmt.Printf("Bid request fulfilled %s %d %d\n", newAuth.From.String(), randNumbers[i], int(time.Now().Sub(start).Seconds()))
 		}
 	}
 }
