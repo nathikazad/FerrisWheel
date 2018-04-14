@@ -12,7 +12,7 @@ contract FerrisToken is StandardToken {
 	  balances[msg.sender] = INITIAL_SUPPLY;
 	}
 
-	function corruptExchange() {
-    balances[msg.sender] = msg.value * 100;
+	function corruptExchange() payable{
+    balances[msg.sender] += msg.value / 10000000000000000;
   }
 }

@@ -24,7 +24,7 @@ type Bid struct {
 }
 
 //address of the deployed ferris contract
-var existingFerrisAddress = common.HexToAddress("0x2328ef76C4c55B317573f176b3C751522e7acFD7")
+var existingFerrisAddress = common.HexToAddress("0xce971c9d809cd76049e3bbabd5c1191abeaedcab")
 //the keystore output of the above ferris contract's beneficiary
 var key = `{"address":"f332f55eb6a83ab51a25e610efd03074cb3929e0","crypto":{"cipher":"aes-128-ctr","ciphertext":"79e88f8ec2c5555620791bcceb511384f19cd70294fa3d296e9354f9d148b555","cipherparams":{"iv":"54b3faaf645c2f333633cf69f4e7c7ab"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"ce2734d62716a970900e8e837184c537412b1f93c4ce5c39867cf3c387f09cdb"},"mac":"a4ce8d5fa7e2b97ab1fb5020cc88fde39ed993f24dc944c4b48e14070ba300d0"},"id":"cc8e7ef9-62dc-43a0-ba67-7ca17c6a5ad9","version":3}`
 //the passphrase used to lock the keystore file
