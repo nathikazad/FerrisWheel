@@ -286,7 +286,7 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 					timer.Stop()
 					continue
 				case <- timer.C: // No bids, so start the ride
-					fmt.Println("Timer Expired")
+					fmt.Println("Ok screw them")
 				}
 			}
 			var transactions []*types.Transaction

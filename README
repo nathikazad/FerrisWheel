@@ -1,0 +1,4 @@
+Run npm install
+then ./node_modules/webpack/bin/webpack.js ./public/app.js ./public/bundle.js
+then go build golang testnet existing
+

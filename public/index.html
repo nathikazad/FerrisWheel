@@ -4,15 +4,13 @@
     <meta charset="UTF-8">
     <title>Simple Chat</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/emojione/2.2.6/assets/css/emojione.min.css"/>
     <link rel="stylesheet" href="/style.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ethjs@0.3.4/dist/ethjs.min.js"></script>
 
 </head>
 <body>
-
-
+<div id="View">
     <div id="Base">
         <img src="https://s7.postimg.cc/tkqa02cfv/Base.png" alt="HTML5 Icon">
         <div id="Wheel">
@@ -42,8 +40,42 @@
                 <img src="https://s7.postimg.cc/y79to6sl7/Chair.png" alt="HTML5 Icon">
             </div>
         </div>
+        <div id="degrees"></div>
     </div>
-    <div id="degrees"></div>
+    <div id="ui">
+        <span>Ferris Address: </span>
+        <span id="ferris-address"></span>
+        <span> Beneficiary: </span>
+        <span id="beneficiary-address"></span> <br/>
+        <span> User Address: </span>
+        <span id="user-address"></span> <br/>
+        <span> User Balance: </span>
+        <span id="user-balance"></span> 
+        <span>FT</span>
+        <button type="button" id="getFT">Get Ferris Tokens</button> <br/>
+        <span> Approved for this ferris: </span>
+        <span id="user-approved-fts"></span> 
+        <span>FT</span>
+        <input type="number" id="approve-ft-field" step="1" value="0" min="0">
+        <button type="button" id="approve-ft-button">Approve FT</button>
+        <br/>
+        <span> User Current Bid: </span>
+        <span id="user-bid"></span>
+        <span>FT</span>
+        <input type="number" id="increase-bid-field" step="1" value="0" min="0">
+        <button type="button" id="increase-bid-button">Increase Bid</button>
+        <br/>
+        
+        
+        <ul>
+            <li>Address Bid</li>
+            <li>Address Bid</li>
+            <li>Address Bid</li>
+            <li>Address Bid</li>
+        </ul>
+    </div>
+</div>
+
 <footer class="page-footer">
 </footer>
 <script src="https://unpkg.com/vue@2.1.3/dist/vue.min.js"></script>
@@ -51,6 +83,6 @@
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
-<script src="/app.js"></script>
+<script src="/bundle.js"></script>
 </body>
 </html>

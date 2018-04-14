@@ -4,21 +4,25 @@ body {
     flex-direction: column;
 }
 
-main {
-    flex: 1 0 auto;
+div#Base {
+	position: relative;
+	float: left;
+	margin-left: 5%;
+	margin-top: 5%;
 }
 
-#chat-messages {
-    min-height: 10vh;
-    height: 60vh;
-    width: 100%;
-    overflow-y: scroll;
+div#ui {
+	float: left;
+	border: 1px solid;
+	margin: 5% 0% 0% 5%;
+	width: 450px;
+	height: 400px;
 }
 
 div#Wheel {
 	position: absolute;
     top: 1.5%;
-    left: 1.5%;
+    left: 3.5%;
     transform: rotateZ(0deg);
     padding-top: 0.5%;
 }
@@ -29,7 +33,7 @@ div#Chair1 {
 }
 div#Chair2 {
 	position: absolute;
-	top: 37%;
+	top: 36%;
 	left: -12%;
 }
 div#Chair3 {
@@ -55,10 +59,34 @@ div#Chair6 {
 div#Chair7 {
 	position: absolute;
 	top: 84%;
-	left: 37%;
+	left: 36%;
 }
 div#Chair8 {
 	position: absolute;
 	top: 70%;
 	left: 2%;
 }
+
+
+button {
+  border-radius: 15px;
+  margin-left: 5px;
+}
+
+#beneficiary-address {
+	margin-left: 1em;
+}
+
+input[type="number"] {
+	width: 3em;
+}
+
+/*input[type="number"] {
+  -webkit-appearance: textfield;
+     -moz-appearance: textfield;
+          appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+}*/

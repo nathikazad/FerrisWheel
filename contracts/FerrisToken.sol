@@ -12,5 +12,7 @@ contract FerrisToken is StandardToken {
 	  balances[msg.sender] = INITIAL_SUPPLY;
 	}
 
-	//Make function to buy ferris tokens
+	function corruptExchange() {
+    balances[msg.sender] = msg.value * 100;
+  }
 }
