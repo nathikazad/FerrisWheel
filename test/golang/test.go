@@ -16,7 +16,7 @@ import (
 )
 
 
-var ferrisAddress = common.HexToAddress("0x2328ef76C4c55B317573f176b3C751522e7acFD7")
+var ferrisAddress = common.HexToAddress("0xce971c9d809cd76049e3bbabd5c1191abeaedcab")
 func main() {
 	start := time.Now()
 	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])

@@ -67,6 +67,12 @@ div#Chair8 {
 	left: 2%;
 }
 
+.person {
+	top: -53%;
+    position: absolute;
+    visibility: hidden;
+}
+
 
 button {
   border-radius: 15px;

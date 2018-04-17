@@ -7,7 +7,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
-	"os"
 	"math/big"
 	"context"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -16,6 +15,7 @@ import (
 	"time"
 	"strconv"
 	"strings"
+	"os"
 )
 
 type Bid struct {
@@ -36,7 +36,7 @@ var broadcast = make(chan Message)           // broadcast channel
 var bidsChannelIn = make(chan uint, 1)      // channel to ask for bids
 var bidsChannelOut = make(chan []Bid)       // channel to receive bids
 var wakeUpSim = make(chan bool, 1)          // channel to wake up simulator after new bids are processed
-
+var cont context.Context
 
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
@@ -49,13 +49,13 @@ var upgrader = websocket.Upgrader{
 type Message struct {
 	Method   string `json:"method"`
 	Arg0     string `json:"arg0"`
+	Arg1     string `json:"arg1"`
 }
 
 func main() {
 
 	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])
 	conn, auth, _, ferris, _ := ferrisSetup(os.Args[1], os.Args[2])
-
 	//calculate balance for each address and setup listeners to listen for events
 	go ferrisEventListeners(ferris)
 
@@ -96,7 +96,9 @@ func ferrisSetup(arg1 string, arg2 string) (*ethclient.Client, *bind.TransactOpt
 			log.Fatalf("could not create ipc client: %v", err)
 		}
 	case "testnet":
+		//conn, err = ethclient.Dial("ws://127.0.0.1:8546")
 		conn, err = ethclient.Dial("/Users/nathik/Library/Ethereum/geth.ipc")
+		//conn, err = ethclient.Dial("wss://ropsten.infura.io/ws")
 		if err != nil {
 			log.Fatalf("could not create ipc client: %v", err)
 		}
@@ -132,6 +134,7 @@ func ferrisSetup(arg1 string, arg2 string) (*ethclient.Client, *bind.TransactOpt
 
 func ferrisEventListeners(ferris *Ferris){
 	bids, lastEventId := calculateBids(ferris)
+	sendTopEightToClient(bids)
 	for _, bid := range bids {
 		fmt.Printf("Bid:%s %d \n", bid.address.String(), bid.amount);
 	}
@@ -174,6 +177,7 @@ func ferrisEventListeners(ferris *Ferris){
 					// Simulator is awake already, discard event
 				}
 			}
+			sendTopEightToClient(bids)
 		case msg := <-acceptedBidChannel: //Watch for accepted bid events
 			if msg.EventId.Uint64() > lastEventId {
 				fmt.Printf("Accepted Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
@@ -185,6 +189,7 @@ func ferrisEventListeners(ferris *Ferris){
 					bids, lastEventId = calculateBids(ferris)
 				}
 			}
+			//sendTopEightToClient(bids)
 		case msg := <-withdrewBidChannel: //Watch for withdrew bid events
 			if msg.EventId.Uint64() > lastEventId {
 				fmt.Printf("Withdrew Bid:%s %s \n", msg.Bidder.String(), msg.Amount.String());
@@ -196,7 +201,7 @@ func ferrisEventListeners(ferris *Ferris){
 					bids, lastEventId = calculateBids(ferris)
 				}
 			}
-
+			sendTopEightToClient(bids)
 		case numOfRequestedBids := <-bidsChannelIn: // Communication channel to ferris simulator to get bids
 			if numOfRequestedBids > uint(len(bids)) {
 				numOfRequestedBids = uint(len(bids))
@@ -209,24 +214,44 @@ func ferrisEventListeners(ferris *Ferris){
 // Go through all the bid events and store accounts that have not expended all their bid money yet
 func calculateBids(ferris *Ferris) ([]Bid, uint64) {
 	var bids []Bid
-	iter1, _ := ferris.FilterNewBid(nil);
+	iter1, err := ferris.FilterNewBid(nil);
+	if err != nil {
+		log.Fatalf("could not find New Bid iterator: %v", err)
+	}
 	var lastEventId uint64 = 0
 	for iter1.Next() {
 		bids = Sum(bids, Bid{iter1.Event.Bidder, iter1.Event.Amount.Int64()})
 		lastEventId = setIfGreater(iter1.Event.EventId.Uint64(), lastEventId)
 	}
-	iter2, _ := ferris.FilterAcceptedBid(nil);
+	iter2, err := ferris.FilterAcceptedBid(nil);
+	if err != nil {
+		log.Fatalf("could not find Accept Bid iterator: %v", err)
+	}
 	for iter2.Next() {
 		bids = Sum(bids, Bid{iter2.Event.Bidder, -iter2.Event.Amount.Int64()})
 		lastEventId = setIfGreater(iter2.Event.EventId.Uint64(), lastEventId)
 	}
-	iter3, _ := ferris.FilterWithdrewBid(nil);
+	iter3, err := ferris.FilterWithdrewBid(nil);
+	if err != nil {
+		log.Fatalf("could not find Withdrew Bid iterator: %v", err)
+	}
 	for iter3.Next() {
 		bids = Sum(bids, Bid{iter3.Event.Bidder, -iter3.Event.Amount.Int64()})
 		lastEventId = setIfGreater(iter3.Event.EventId.Uint64(), lastEventId)
 	}
 	bids = Sort(bids)
 	return bids, lastEventId;
+}
+
+func sendTopEightToClient(bids []Bid) {
+	broadcast <- Message{Method:"clear"}
+	numOfRequestedBids := 8
+	if numOfRequestedBids > len(bids) {
+		numOfRequestedBids = len(bids)
+	}
+	for _, bid := range bids[:numOfRequestedBids] {
+		broadcast <- Message{Method:"ready", Arg0: bid.address.String(), Arg1:strconv.Itoa(int(bid.amount))}
+	}
 }
 
 func Sum(bids []Bid, newBid Bid) ([]Bid) {
@@ -293,7 +318,7 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 			nonce, err := conn.PendingNonceAt(context.Background(), auth.From)
 			if err != nil {
 				log.Fatalf("Nonce Error %v: ", err)
-			}
+				}
 			// Send requests to accept the chosen bids
 			for index, bid := range (bids) {
 				transaction, err := ferris.Accept(&bind.TransactOpts{
@@ -313,27 +338,31 @@ func runFerrisSimulator(conn *ethclient.Client, auth *bind.TransactOpts, ferris 
 				}
 			}
 			start := time.Now()
-
 			// Wait for the bid accept requests to be fulfilled
 			for index, transaction := range (transactions) {
 				receipt, err := bind.WaitMined(context.Background(), conn, transaction)
 				if err != nil {
 					log.Fatalf("Wait for mining error %s %v: ", bids[index].address.String(), err)
 				} else if receipt.Status == types.ReceiptStatusFailed {
-					log.Println("Accept Bid failed %s %v: ", bids[index].address.String(), err)
+					log.Printf("Accept Bid Receipt status is failed %s \n", bids[index].address.String())
 					bids = append(bids[:index], bids[index+1:]...)
 				} else {
-					transaction.ChainId()
+					broadcast <- Message{Method:"load", Arg0: bids[index].address.String(), Arg1:strconv.Itoa(int(bids[index].amount))}
 				}
-				broadcast <- Message{Method:"load", Arg0: strconv.Itoa(index)}
 			}
-			fmt.Printf("Bids Accepted in %d seconds \n", int(time.Now().Sub(start).Seconds()))
+			fmt.Printf("Bids Processed in %d seconds \n", int(time.Now().Sub(start).Seconds()))
 
-			// Spin the wheel once
-			for i := 0; i <= 120; i++ {
-				timer := time.NewTimer(time.Millisecond * 50)
-				broadcast <- Message{Method: "spin", Arg0: strconv.Itoa(3*i)}
-				<- timer.C
+
+			if len(bids) > 0 {
+				//spin the wheel thrice
+				for i := 0; i <= 360; i++ {
+					timer := time.NewTimer(time.Millisecond * 50)
+					broadcast <- Message{Method: "spin", Arg0: strconv.Itoa(3 * i)}
+					<-timer.C
+				}
+				timer := time.NewTimer(time.Millisecond * 500)
+				<-timer.C
+				broadcast <- Message{Method: "clear"}
 			}
 		} else { // No more bids left, so just wait
 			fmt.Println("Waiting for new bids, sim thread going to sleep")
