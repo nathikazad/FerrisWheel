@@ -14,8 +14,9 @@ import (
 	"github.com/gorilla/websocket"
 	"time"
 	"strconv"
-	"strings"
 	"os"
+	"github.com/ethereum/go-ethereum/crypto"
+	"bufio"
 )
 
 type Bid struct {
@@ -23,12 +24,6 @@ type Bid struct {
 	amount int64;
 }
 
-//address of the deployed ferris contract
-var existingFerrisAddress = common.HexToAddress("0xce971c9d809cd76049e3bbabd5c1191abeaedcab")
-//the keystore output of the above ferris contract's beneficiary
-var key = `{"address":"f332f55eb6a83ab51a25e610efd03074cb3929e0","crypto":{"cipher":"aes-128-ctr","ciphertext":"79e88f8ec2c5555620791bcceb511384f19cd70294fa3d296e9354f9d148b555","cipherparams":{"iv":"54b3faaf645c2f333633cf69f4e7c7ab"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"ce2734d62716a970900e8e837184c537412b1f93c4ce5c39867cf3c387f09cdb"},"mac":"a4ce8d5fa7e2b97ab1fb5020cc88fde39ed993f24dc944c4b48e14070ba300d0"},"id":"cc8e7ef9-62dc-43a0-ba67-7ca17c6a5ad9","version":3}`
-//the passphrase used to lock the keystore file
-var passphrase = "speakers"
 
 var clients = make(map[*websocket.Conn]bool) // connected clients
 var broadcast = make(chan Message)           // broadcast channel
@@ -54,8 +49,12 @@ type Message struct {
 
 func main() {
 
-	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])
-	conn, auth, _, ferris, _ := ferrisSetup(os.Args[1], os.Args[2])
+	contractInfoFilename := "golang/contractInfo.txt"
+	if (len(os.Args) == 2) { //file name is provided
+		contractInfoFilename = os.Args[1]
+	}
+
+	conn, auth, _, ferris  := ferrisSetup(contractInfoFilename)
 	//calculate balance for each address and setup listeners to listen for events
 	go ferrisEventListeners(ferris)
 
@@ -81,55 +80,47 @@ func main() {
 
 }
 
-func ferrisSetup(arg1 string, arg2 string) (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris, common.Address) {
-	var conn *ethclient.Client
-	var auth *bind.TransactOpts
-	var err error
-	var address, ferrisAddress common.Address
-	var ferris *Ferris;
-	var ferrisToken *FerrisToken;
-	switch arg1 {
-	case "local":
-		key = `{"address":"627306090abab3a6e1400e9345bc60c78a8bef57","crypto":{"cipher":"aes-128-ctr","ciphertext":"c5789188e6009914f45c1d280cc54099e7622e469e59f1e3d4dce83135d57b40","cipherparams":{"iv":"5805aeaa8fa6e167a609c38bdc4e70ae"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"37ebb28452e322aa1976931cfbfda8fb3d3799b2f52e5511ab4a3b595f00aa4d"},"mac":"aa3cb8f0ce2f647d1fdf9cbadf161913804885361e86ffa334f9343b6cda25b1"},"id":"a72cc19d-2f5d-4017-b003-ff42c93bd12c","version":3}`
-		conn, err = ethclient.Dial("http://localhost:7545")
-		if err != nil {
-			log.Fatalf("could not create ipc client: %v", err)
-		}
-	case "testnet":
-		//conn, err = ethclient.Dial("ws://127.0.0.1:8546")
-		conn, err = ethclient.Dial("/Users/nathik/Library/Ethereum/geth.ipc")
-		//conn, err = ethclient.Dial("wss://ropsten.infura.io/ws")
-		if err != nil {
-			log.Fatalf("could not create ipc client: %v", err)
-		}
+
+func ferrisSetup(contractInfoFilename string) (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris) {
+
+	conn, err := ethclient.Dial("ws://127.0.0.1:8546")
+	if err != nil {
+		log.Fatalf("could not create ipc client: %v", err)
 	}
 
-	auth, err = bind.NewTransactor(strings.NewReader(key), passphrase)
-
-	switch arg2 {
-	case "new":
-		if err != nil {
-			log.Fatalf("could not create auth: %v", err)
-		}
-		address, _, ferrisToken, err = DeployFerrisToken(auth, conn)
-		ferrisAddress, _, ferris, err = DeployFerris(auth, conn, address)
-		if err != nil {
-			log.Fatalf("could not deploy Ferris ferris: %v", err)
-		}
-		fmt.Printf("address:%s\n" , ferrisAddress.String())
-	case "existing":
-		ferris, err = NewFerris(existingFerrisAddress, conn)
-		address, _ = ferris.GetFerrisTokenAddress(nil)
-		ferrisToken, err = NewFerrisToken(address, conn)
-		if err != nil {
-			log.Fatalf("could not find ferris: %v", err)
-		}
+	file, err := os.Open(contractInfoFilename)
+	if err != nil {
+		log.Fatal(err)
 	}
-	//beneficiary, _ := ferris.Beneficiary(nil)
-	//fmt.Printf("beneficiary: %s \n", beneficiary.String())
-	//balance, _ := ferrisToken.BalanceOf(nil, beneficiary)
-	//fmt.Printf("balance: %s \n", balance.String())
-	return conn, auth, ferrisToken, ferris ,ferrisAddress
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	scanner.Scan()
+	scanner.Scan()
+	//address of the deployed ferris contract
+	existingFerrisAddress := scanner.Text()
+
+	scanner.Scan()
+	scanner.Scan()
+	//the private key of the above ferris contract's beneficiary
+	privateKeyString := scanner.Text()
+
+	privateKey, _ := crypto.HexToECDSA(privateKeyString)
+	auth := bind.NewKeyedTransactor(privateKey)
+
+	ferris, err := NewFerris(common.HexToAddress(existingFerrisAddress), conn)
+	address, _ := ferris.GetFerrisTokenAddress(nil)
+	ferrisToken, err := NewFerrisToken(address, conn)
+	if err != nil {
+		log.Fatalf("could not find ferris: %v", err)
+	}
+
+	beneficiary, _ := ferris.Beneficiary(nil)
+	fmt.Printf("beneficiary: %s \n", beneficiary.String())
+	balance, _ := ferrisToken.BalanceOf(nil, beneficiary)
+	fmt.Printf("balance: %s \n", balance.String())
+	return conn, auth, ferrisToken, ferris
 }
 
 func ferrisEventListeners(ferris *Ferris){

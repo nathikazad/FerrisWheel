@@ -3,9 +3,7 @@ package main
 import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
 	"log"
-	"strings"
 	"fmt"
 	"math/big"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -13,14 +11,20 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"math/rand"
 	"time"
+	"os"
+	"bufio"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 
-var ferrisAddress = common.HexToAddress("0xce971c9d809cd76049e3bbabd5c1191abeaedcab")
 func main() {
 	start := time.Now()
-	//conn, auth, ferrisToken, ferris, ferrisAddress := ferrisSetup(os.Args[1], os.Args[2])
-	conn, mainAuth, ferrisToken, ferris := ferrisSetup()
+	contractInfoFilename := "golang/contractInfo.txt"
+	if (len(os.Args) == 2) { //file name is provided
+		contractInfoFilename = os.Args[1]
+	}
+	conn, mainAuth, ferrisToken, ferris, ferrisAddress  := ferrisSetup(contractInfoFilename)
+
 	var transactions []*types.Transaction
 	var auths []*bind.TransactOpts
 	nonce, err := conn.PendingNonceAt(context.Background(), mainAuth.From)
@@ -134,14 +138,33 @@ func main() {
 }
 
 
-func ferrisSetup() (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris) {
+func ferrisSetup(contractInfoFilename string) (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris, common.Address) {
 
-	key := `{"address":"f332f55eb6a83ab51a25e610efd03074cb3929e0","crypto":{"cipher":"aes-128-ctr","ciphertext":"79e88f8ec2c5555620791bcceb511384f19cd70294fa3d296e9354f9d148b555","cipherparams":{"iv":"54b3faaf645c2f333633cf69f4e7c7ab"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"ce2734d62716a970900e8e837184c537412b1f93c4ce5c39867cf3c387f09cdb"},"mac":"a4ce8d5fa7e2b97ab1fb5020cc88fde39ed993f24dc944c4b48e14070ba300d0"},"id":"cc8e7ef9-62dc-43a0-ba67-7ca17c6a5ad9","version":3}`
-	conn, err := ethclient.Dial("/Users/nathik/Library/Ethereum/geth.ipc")
+	conn, err := ethclient.Dial("ws://127.0.0.1:8546")
 	if err != nil {
 		log.Fatalf("could not create ipc client: %v", err)
 	}
-	auth, err := bind.NewTransactor(strings.NewReader(key), "speakers")
+
+	file, err := os.Open(contractInfoFilename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	scanner.Scan()
+	scanner.Scan()
+	//address of the deployed ferris contract
+	ferrisAddress := common.HexToAddress(scanner.Text())
+
+	scanner.Scan()
+	scanner.Scan()
+	//the private key of the above ferris contract's beneficiary
+	privateKeyString := scanner.Text()
+
+	privateKey, _ := crypto.HexToECDSA(privateKeyString)
+	auth := bind.NewKeyedTransactor(privateKey)
 
 	ferris, err := NewFerris(ferrisAddress, conn)
 	address, _ := ferris.GetFerrisTokenAddress(nil)
@@ -154,7 +177,7 @@ func ferrisSetup() (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris
 	fmt.Printf("beneficiary: %s \n", beneficiary.String())
 	balance, _ := ferrisToken.BalanceOf(nil, beneficiary)
 	fmt.Printf("balance: %s \n", balance.String())
-	return conn, auth, ferrisToken, ferris
+	return conn, auth, ferrisToken, ferris, ferrisAddress
 }
 
 
