@@ -1,5 +1,24 @@
-Run npm install
-then ./node_modules/webpack/bin/webpack.js ./public/app.js ./public/bundle.js
-then go build golang testnet existing
-open chrome http://localhost:8000/
+Pre Reqs
+Go and Geth
+Install instructions for ubuntu
+    Go
+    https://github.com/golang/go/wiki/Ubuntu
 
+    Geth
+    https://github.com/ethereum/go-ethereum/wiki/Installation-Instructions-for-Ubuntu
+
+
+To run, open CLI
+    geth --testnet --ws   #Might take a while if first time
+    cd FerrisWheel
+    go run golang/main.go golang/ferris.go
+
+Open chrome http://localhost:8000/
+
+If you want to run test script that generates random bids:
+Open separate tab in CLI
+    go run golang/test/test.go golang/test/ferris.go
+
+To mess with client JS need npm and this webpack hack to generate js files
+Run npm install
+Run ./node_modules/webpack/bin/webpack.js ./public/app.js ./public/bundle.js

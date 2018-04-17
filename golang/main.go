@@ -8,7 +8,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"context"
 	"github.com/ethereum/go-ethereum/core/types"
 	"net/http"
 	"github.com/gorilla/websocket"
@@ -17,6 +16,7 @@ import (
 	"os"
 	"github.com/ethereum/go-ethereum/crypto"
 	"bufio"
+	"context"
 )
 
 type Bid struct {
@@ -31,7 +31,6 @@ var broadcast = make(chan Message)           // broadcast channel
 var bidsChannelIn = make(chan uint, 1)      // channel to ask for bids
 var bidsChannelOut = make(chan []Bid)       // channel to receive bids
 var wakeUpSim = make(chan bool, 1)          // channel to wake up simulator after new bids are processed
-var cont context.Context
 
 // Configure the upgrader
 var upgrader = websocket.Upgrader{
