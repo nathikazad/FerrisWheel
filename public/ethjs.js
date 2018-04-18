@@ -1,4 +1,15 @@
-/******/ (function(modules) { // webpackBootstrap
+ /* eslint-disable */ 
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("Eth", [], factory);
+	else if(typeof exports === 'object')
+		exports["Eth"] = factory();
+	else
+		root["Eth"] = factory();
+})(this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -33,27 +44,16 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	// identity function for calling harmory imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
-/******/ 	// define getter function for harmony exports
+/******/ 	// define getter function for harmory exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
+/******/ 		Object.defineProperty(exports, name, {
+/******/ 			configurable: false,
+/******/ 			enumerable: true,
+/******/ 			get: getter
+/******/ 		});
 /******/ 	};
 /******/
 /******/ 	// Object.prototype.hasOwnProperty.call
@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 28);
+/******/ 	return __webpack_require__(__webpack_require__.s = 26);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,7 +71,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(global) {/*!
+/* WEBPACK VAR INJECTION */(function(Buffer, global) {/*!
  * The buffer module from node.js, for the browser.
  *
  * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
@@ -81,9 +81,9 @@
 
 'use strict'
 
-var base64 = __webpack_require__(10)
-var ieee754 = __webpack_require__(23)
-var isArray = __webpack_require__(24)
+var base64 = __webpack_require__(12)
+var ieee754 = __webpack_require__(20)
+var isArray = __webpack_require__(21)
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -1861,7 +1861,7 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer, __webpack_require__(9)))
 
 /***/ },
 /* 1 */
@@ -5295,60 +5295,16 @@ function isnan (val) {
   };
 })(typeof module === 'undefined' || module, this);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)(module)))
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-var BN = __webpack_require__(1);
-var stripHexPrefix = __webpack_require__(5);
-
-/**
- * Returns a BN object, converts a number value to a BN
- * @param {String|Number|Object} `arg` input a string number, hex string number, number, BigNumber or BN object
- * @return {Object} `output` BN object of the number
- * @throws if the argument is not an array, object that isn't a bignumber, not a string number or number
- */
-module.exports = function numberToBN(arg) {
-  if (typeof arg === 'string' || typeof arg === 'number') {
-    var multiplier = new BN(1); // eslint-disable-line
-    var formattedString = String(arg).toLowerCase().trim();
-    var isHexPrefixed = formattedString.substr(0, 2) === '0x' || formattedString.substr(0, 3) === '-0x';
-    var stringArg = stripHexPrefix(formattedString); // eslint-disable-line
-    if (stringArg.substr(0, 1) === '-') {
-      stringArg = stripHexPrefix(stringArg.slice(1));
-      multiplier = new BN(-1, 10);
-    }
-    stringArg = stringArg === '' ? '0' : stringArg;
-
-    if ((!stringArg.match(/^-?[0-9]+$/) && stringArg.match(/^[0-9A-Fa-f]+$/))
-      || stringArg.match(/^[a-fA-F]+$/)
-      || (isHexPrefixed === true && stringArg.match(/^[0-9A-Fa-f]+$/))) {
-      return new BN(stringArg, 16).mul(multiplier);
-    }
-
-    if ((stringArg.match(/^-?[0-9]+$/) || stringArg === '') && isHexPrefixed === false) {
-      return new BN(stringArg, 10).mul(multiplier);
-    }
-  } else if (typeof arg === 'object' && arg.toString && (!arg.pop && !arg.push)) {
-    if (arg.toString(10).match(/^-?[0-9]+$/) && (arg.mul || arg.dividedToIntegerBy)) {
-      return new BN(arg.toString(10), 10);
-    }
-  }
-
-  throw new Error('[number-to-bn] while converting number ' + JSON.stringify(arg) + ' to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.');
-}
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
 
-var isHexPrefixed = __webpack_require__(7);
+var isHexPrefixed = __webpack_require__(8);
 var stripHexPrefix = __webpack_require__(5);
 
 /**
@@ -5567,6 +5523,50 @@ module.exports = {
   isHexString: isHexString
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+var BN = __webpack_require__(1);
+var stripHexPrefix = __webpack_require__(5);
+
+/**
+ * Returns a BN object, converts a number value to a BN
+ * @param {String|Number|Object} `arg` input a string number, hex string number, number, BigNumber or BN object
+ * @return {Object} `output` BN object of the number
+ * @throws if the argument is not an array, object that isn't a bignumber, not a string number or number
+ */
+module.exports = function numberToBN(arg) {
+  if (typeof arg === 'string' || typeof arg === 'number') {
+    var multiplier = new BN(1); // eslint-disable-line
+    var formattedString = String(arg).toLowerCase().trim();
+    var isHexPrefixed = formattedString.substr(0, 2) === '0x' || formattedString.substr(0, 3) === '-0x';
+    var stringArg = stripHexPrefix(formattedString); // eslint-disable-line
+    if (stringArg.substr(0, 1) === '-') {
+      stringArg = stripHexPrefix(stringArg.slice(1));
+      multiplier = new BN(-1, 10);
+    }
+    stringArg = stringArg === '' ? '0' : stringArg;
+
+    if ((!stringArg.match(/^-?[0-9]+$/) && stringArg.match(/^[0-9A-Fa-f]+$/))
+      || stringArg.match(/^[a-fA-F]+$/)
+      || (isHexPrefixed === true && stringArg.match(/^[0-9A-Fa-f]+$/))) {
+      return new BN(stringArg, 16).mul(multiplier);
+    }
+
+    if ((stringArg.match(/^-?[0-9]+$/) || stringArg === '') && isHexPrefixed === false) {
+      return new BN(stringArg, 10).mul(multiplier);
+    }
+  } else if (typeof arg === 'object' && arg.toString && (!arg.pop && !arg.push)) {
+    if (arg.toString(10).match(/^-?[0-9]+$/) && (arg.mul || arg.dividedToIntegerBy)) {
+      return new BN(arg.toString(10), 10);
+    }
+  }
+
+  throw new Error('[number-to-bn] while converting number ' + JSON.stringify(arg) + ' to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.');
+}
+
 
 /***/ },
 /* 4 */
@@ -6044,13 +6044,13 @@ module.exports = {
   }
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25), __webpack_require__(8)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), __webpack_require__(9)))
 
 /***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-var isHexPrefixed = __webpack_require__(7);
+var isHexPrefixed = __webpack_require__(8);
 
 /**
  * Removes '0x' from a given `String` is present
@@ -6068,411 +6068,6 @@ module.exports = function stripHexPrefix(str) {
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
-
-"use strict";
-'use strict';
-
-function constructFilter(filterName, query) {
-  function Filter(options) {
-    var self = this;
-    self.filterId = null;
-    self.options = Object.assign({
-      delay: 300,
-      decoder: function decodeData(data) {
-        return data;
-      },
-      defaultFilterObject: {}
-    }, options || {});
-
-    self.watchers = {};
-    self.interval = setInterval(function () {
-      if (self.filterId !== null && Object.keys(self.watchers).length > 0) {
-        query.getFilterChanges(self.filterId, function (changeError, changeResult) {
-          var decodedChangeResults = [];
-          var decodingError = null; // eslint-disable-line
-
-          if (!changeError) {
-            try {
-              changeResult.forEach(function (log, logIndex) {
-                decodedChangeResults[logIndex] = changeResult[logIndex];
-                decodedChangeResults[logIndex].data = self.options.decoder(decodedChangeResults[logIndex].data);
-              });
-            } catch (decodingErrorMesage) {
-              decodingError = new Error('[ethjs-filter] while decoding filter change event data from RPC \'' + JSON.stringify(decodedChangeResults) + '\': ' + decodingErrorMesage);
-            }
-          }
-
-          Object.keys(self.watchers).forEach(function (id) {
-            var watcher = self.watchers[id];
-            if (watcher.stop === true) {
-              delete self.watchers[id];
-              return;
-            }
-
-            if (decodingError) {
-              watcher.reject(decodingError);
-              watcher.callback(decodingError, null);
-            } else {
-              if (changeError) {
-                watcher.reject(changeError);
-              } else if (Array.isArray(decodedChangeResults) && changeResult.length > 0) {
-                watcher.resolve(decodedChangeResults);
-              }
-
-              watcher.callback(changeError, decodedChangeResults);
-            }
-          });
-        });
-      }
-    }, self.options.delay);
-  }
-
-  Filter.prototype.at = function atFilter(filterId) {
-    var self = this;
-    self.filterId = filterId;
-  };
-
-  Filter.prototype.watch = function watchFilter(watchCallbackInput) {
-    var callback = watchCallbackInput || function () {}; // eslint-disable-line
-    var self = this;
-    var id = Math.random().toString(36).substring(7);
-    var output = new Promise(function (resolve, reject) {
-      self.watchers[id] = { resolve: resolve, reject: reject, callback: callback, stop: false };
-    });
-
-    output.stopWatching = function stopWatching() {
-      self.watchers[id].stop = true;
-    };
-
-    return output;
-  };
-
-  Filter.prototype.uninstall = function uninstallFilter(cb) {
-    var self = this;
-    var callback = cb || function emptyCallback() {};
-    self.watchers = Object.assign({});
-    clearInterval(self.interval);
-
-    return new Promise(function (resolve, reject) {
-      query.uninstallFilter(self.filterId, function (uninstallError, uninstallResilt) {
-        if (uninstallError) {
-          reject(uninstallError);
-        } else {
-          resolve(uninstallResilt);
-        }
-
-        callback(uninstallError, uninstallResilt);
-      });
-    });
-  };
-
-  Filter.prototype['new'] = function newFilter() {
-    var callback = function callback() {}; // eslint-disable-line
-    var self = this;
-    var filterInputs = [];
-    var args = [].slice.call(arguments); // eslint-disable-line
-    // pop callback if provided
-    if (typeof args[args.length - 1] === 'function') {
-      callback = args.pop();
-    }
-
-    // if a param object was presented, push that into the inputs
-    if (filterName === 'Filter') {
-      filterInputs.push(Object.assign(self.options.defaultFilterObject, args[args.length - 1] || {}));
-    }
-
-    return new Promise(function (resolve, reject) {
-      // add complex callback
-      filterInputs.push(function (setupError, filterId) {
-        if (!setupError) {
-          self.filterId = filterId;
-          resolve(filterId);
-        } else {
-          reject(setupError);
-        }
-
-        callback(setupError, filterId);
-      });
-
-      // apply filter, call new.. filter method
-      query['new' + filterName].apply(query, filterInputs);
-    });
-  };
-
-  return Filter;
-}
-
-/**
- * EthFilter constructor, intakes a query, helps manage filter event polling
- *
- * @method EthFilter
- * @param {Object} query the `ethjs-query` or `eth-query` object
- * @returns {Object} output an EthFilter instance
- * @throws error if new is not used
- */
-
-function EthFilter(query) {
-  var self = this;
-  if (!(self instanceof EthFilter)) {
-    throw new Error('the EthFilter object must be instantiated with `new` flag.. (e.g. `const filters = new EthFilter(query);`)');
-  }
-  if (typeof query !== 'object') {
-    throw new Error('the EthFilter object must be instantiated with an EthQuery instance (e.g. `const filters = new EthFilter(new EthQuery(provider));`). See github.com/ethjs/ethjs-query for more details..');
-  }
-
-  self.Filter = constructFilter('Filter', query);
-  self.BlockFilter = constructFilter('BlockFilter', query);
-  self.PendingTransactionFilter = constructFilter('PendingTransactionFilter', query);
-}
-
-// export EthFilter
-module.exports = EthFilter;
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-/**
- * Returns a `Boolean` on whether or not the a `String` starts with '0x'
- * @param {String} str the string input value
- * @return {Boolean} a boolean if it is or is not hex prefixed
- * @throws if the str input is not a string
- */
-module.exports = function isHexPrefixed(str) {
-  if (typeof str !== 'string') {
-    throw new Error("[is-hex-prefixed] value must be type 'string', is currently type " + (typeof str) + ", while checking isHexPrefixed.");
-  }
-
-  return str.slice(0, 2) === '0x';
-}
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() { return this; })();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
-
-var EthQuery = __webpack_require__(18);
-var EthFilter = __webpack_require__(6);
-var EthContract = __webpack_require__(13);
-var HttpProvider = __webpack_require__(17);
-var abi = __webpack_require__(11);
-// const getTxSuccess = require('ethjs-transaction-success'); // eslint-disable-line
-var unit = __webpack_require__(21);
-var keccak256 = __webpack_require__(4).keccak_256;
-var toBN = __webpack_require__(2);
-var BN = __webpack_require__(1);
-var utils = __webpack_require__(3);
-var getTransactionSuccess = __webpack_require__(22);
-
-module.exports = Eth;
-
-/**
- * Returns the ethjs Eth instance.
- *
- * @method Eth
- * @param {Object} cprovider the web3 standard provider object
- * @param {Object} options the Eth options object
- * @returns {Object} eth Eth object instance
- * @throws if the new flag is not used in construction
- */
-
-function Eth(cprovider, options) {
-  if (!(this instanceof Eth)) {
-    throw new Error('[ethjs] the Eth object requires you construct it with the "new" flag (i.e. `const eth = new Eth(...);`).');
-  }
-  var self = this;
-  self.options = options || {};
-  var query = new EthQuery(cprovider, self.options.query);
-  Object.keys(Object.getPrototypeOf(query)).forEach(function (methodName) {
-    self[methodName] = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      return query[methodName].apply(query, args);
-    };
-  });
-  self.filter = new EthFilter(query, self.options.query);
-  self.contract = new EthContract(query, self.options.query);
-  self.currentProvider = query.rpc.currentProvider;
-  self.setProvider = query.setProvider;
-  self.getTransactionSuccess = getTransactionSuccess(self);
-}
-
-Eth.BN = BN;
-Eth.isAddress = function (val) {
-  return utils.isHexString(val, 20);
-};
-Eth.keccak256 = function (val) {
-  return '0x' + keccak256(val);
-};
-Eth.Buffer = Buffer;
-Eth.isHexString = utils.isHexString;
-Eth.fromWei = unit.fromWei;
-Eth.toWei = unit.toWei;
-Eth.toBN = toBN;
-Eth.abi = abi;
-Eth.fromAscii = utils.fromAscii;
-Eth.toAscii = utils.toAscii;
-Eth.fromUtf8 = utils.fromUtf8;
-Eth.toUtf8 = utils.toUtf8;
-Eth.HttpProvider = HttpProvider;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-"use strict";
-'use strict'
-
-exports.byteLength = byteLength
-exports.toByteArray = toByteArray
-exports.fromByteArray = fromByteArray
-
-var lookup = []
-var revLookup = []
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
-
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-for (var i = 0, len = code.length; i < len; ++i) {
-  lookup[i] = code[i]
-  revLookup[code.charCodeAt(i)] = i
-}
-
-// Support decoding URL-safe base64 strings, as Node.js does.
-// See: https://en.wikipedia.org/wiki/Base64#URL_applications
-revLookup['-'.charCodeAt(0)] = 62
-revLookup['_'.charCodeAt(0)] = 63
-
-function placeHoldersCount (b64) {
-  var len = b64.length
-  if (len % 4 > 0) {
-    throw new Error('Invalid string. Length must be a multiple of 4')
-  }
-
-  // the number of equal signs (place holders)
-  // if there are two placeholders, than the two characters before it
-  // represent one byte
-  // if there is only one, then the three characters before it represent 2 bytes
-  // this is just a cheap hack to not do indexOf twice
-  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
-}
-
-function byteLength (b64) {
-  // base64 is 4/3 + up to two characters of the original data
-  return (b64.length * 3 / 4) - placeHoldersCount(b64)
-}
-
-function toByteArray (b64) {
-  var i, l, tmp, placeHolders, arr
-  var len = b64.length
-  placeHolders = placeHoldersCount(b64)
-
-  arr = new Arr((len * 3 / 4) - placeHolders)
-
-  // if there are placeholders, only get up to the last complete 4 chars
-  l = placeHolders > 0 ? len - 4 : len
-
-  var L = 0
-
-  for (i = 0; i < l; i += 4) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
-    arr[L++] = (tmp >> 16) & 0xFF
-    arr[L++] = (tmp >> 8) & 0xFF
-    arr[L++] = tmp & 0xFF
-  }
-
-  if (placeHolders === 2) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
-    arr[L++] = tmp & 0xFF
-  } else if (placeHolders === 1) {
-    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
-    arr[L++] = (tmp >> 8) & 0xFF
-    arr[L++] = tmp & 0xFF
-  }
-
-  return arr
-}
-
-function tripletToBase64 (num) {
-  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
-}
-
-function encodeChunk (uint8, start, end) {
-  var tmp
-  var output = []
-  for (var i = start; i < end; i += 3) {
-    tmp = ((uint8[i] << 16) & 0xFF0000) + ((uint8[i + 1] << 8) & 0xFF00) + (uint8[i + 2] & 0xFF)
-    output.push(tripletToBase64(tmp))
-  }
-  return output.join('')
-}
-
-function fromByteArray (uint8) {
-  var tmp
-  var len = uint8.length
-  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
-  var output = ''
-  var parts = []
-  var maxChunkLength = 16383 // must be multiple of 3
-
-  // go through the array every three bytes, we'll deal with trailing stuff later
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
-    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
-  }
-
-  // pad the end with zeros, but make sure to not forget the extra bytes
-  if (extraBytes === 1) {
-    tmp = uint8[len - 1]
-    output += lookup[tmp >> 2]
-    output += lookup[(tmp << 4) & 0x3F]
-    output += '=='
-  } else if (extraBytes === 2) {
-    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
-    output += lookup[tmp >> 10]
-    output += lookup[(tmp >> 4) & 0x3F]
-    output += lookup[(tmp << 2) & 0x3F]
-    output += '='
-  }
-
-  parts.push(output)
-
-  return parts.join('')
-}
-
-
-/***/ },
-/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6480,809 +6075,7 @@ function fromByteArray (uint8) {
 
 /* eslint-disable */
 
-var utils = __webpack_require__(12);
-var uint256Coder = utils.uint256Coder;
-var coderBoolean = utils.coderBoolean;
-var coderFixedBytes = utils.coderFixedBytes;
-var coderAddress = utils.coderAddress;
-var coderDynamicBytes = utils.coderDynamicBytes;
-var coderString = utils.coderString;
-var coderArray = utils.coderArray;
-var paramTypePart = utils.paramTypePart;
-var getParamCoder = utils.getParamCoder;
-
-function Result() {}
-
-function encodeParams(types, values) {
-  if (types.length !== values.length) {
-    throw new Error('[ethjs-abi] while encoding params, types/values mismatch, Your contract requires ' + types.length + ' types (arguments), and you passed in ' + values.length);
-  }
-
-  var parts = [];
-
-  types.forEach(function (type, index) {
-    var coder = getParamCoder(type);
-    parts.push({ dynamic: coder.dynamic, value: coder.encode(values[index]) });
-  });
-
-  function alignSize(size) {
-    return parseInt(32 * Math.ceil(size / 32));
-  }
-
-  var staticSize = 0,
-      dynamicSize = 0;
-  parts.forEach(function (part) {
-    if (part.dynamic) {
-      staticSize += 32;
-      dynamicSize += alignSize(part.value.length);
-    } else {
-      staticSize += alignSize(part.value.length);
-    }
-  });
-
-  var offset = 0,
-      dynamicOffset = staticSize;
-  var data = new Buffer(staticSize + dynamicSize);
-
-  parts.forEach(function (part, index) {
-    if (part.dynamic) {
-      uint256Coder.encode(dynamicOffset).copy(data, offset);
-      offset += 32;
-
-      part.value.copy(data, dynamicOffset);
-      dynamicOffset += alignSize(part.value.length);
-    } else {
-      part.value.copy(data, offset);
-      offset += alignSize(part.value.length);
-    }
-  });
-
-  return '0x' + data.toString('hex');
-}
-
-// decode bytecode data from output names and types
-function decodeParams(names, types, data) {
-  var useNumberedParams = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-  // Names is optional, so shift over all the parameters if not provided
-  if (arguments.length < 3) {
-    data = types;
-    types = names;
-    names = [];
-  }
-
-  data = utils.hexOrBuffer(data);
-  var values = new Result();
-
-  var offset = 0;
-  types.forEach(function (type, index) {
-    var coder = getParamCoder(type);
-
-    if (coder.dynamic) {
-      var dynamicOffset = uint256Coder.decode(data, offset);
-      var result = coder.decode(data, dynamicOffset.value.toNumber());
-      offset += dynamicOffset.consumed;
-    } else {
-      var result = coder.decode(data, offset);
-      offset += result.consumed;
-    }
-
-    if (useNumberedParams) {
-      values[index] = result.value;
-    }
-
-    if (names[index]) {
-      values[names[index]] = result.value;
-    }
-  });
-  return values;
-}
-
-// create an encoded method signature from an ABI object
-function encodeSignature(method) {
-  var signature = method.name + '(' + utils.getKeys(method.inputs, 'type').join(',') + ')';
-  var signatureEncoded = '0x' + new Buffer(utils.keccak256(signature), 'hex').slice(0, 4).toString('hex');
-
-  return signatureEncoded;
-}
-
-// encode method ABI object with values in an array, output bytecode
-function encodeMethod(method, values) {
-  var paramsEncoded = encodeParams(utils.getKeys(method.inputs, 'type'), values).substring(2);
-
-  return '' + encodeSignature(method) + paramsEncoded;
-}
-
-// decode method data bytecode, from method ABI object
-function decodeMethod(method, data) {
-  var outputNames = utils.getKeys(method.outputs, 'name', true);
-  var outputTypes = utils.getKeys(method.outputs, 'type');
-
-  return decodeParams(outputNames, outputTypes, utils.hexOrBuffer(data));
-}
-
-// decode method data bytecode, from method ABI object
-function encodeEvent(eventObject, values) {
-  return encodeMethod(eventObject, values);
-}
-
-function eventSignature(eventObject) {
-  var signature = eventObject.name + '(' + utils.getKeys(eventObject.inputs, 'type').join(',') + ')';
-
-  return '0x' + utils.keccak256(signature);
-}
-
-// decode method data bytecode, from method ABI object
-function decodeEvent(eventObject, data, topics) {
-  var useNumberedParams = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-  var nonIndexed = eventObject.inputs.filter(function (input) {
-    return !input.indexed;
-  });
-  var nonIndexedNames = utils.getKeys(nonIndexed, 'name', true);
-  var nonIndexedTypes = utils.getKeys(nonIndexed, 'type');
-  var event = decodeParams(nonIndexedNames, nonIndexedTypes, utils.hexOrBuffer(data), useNumberedParams);
-  var topicOffset = eventObject.anonymous ? 0 : 1;
-
-  eventObject.inputs.filter(function (input) {
-    return input.indexed;
-  }).map(function (input, i) {
-    var topic = new Buffer(topics[i + topicOffset].slice(2), 'hex');
-    var coder = getParamCoder(input.type);
-    event[input.name] = coder.decode(topic, 0).value;
-  });
-
-  event._eventName = eventObject.name;
-
-  return event;
-}
-
-// Decode a specific log item with a specific event abi
-function decodeLogItem(eventObject, log) {
-  var useNumberedParams = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-  if (eventObject && log.topics[0] === eventSignature(eventObject)) {
-    return decodeEvent(eventObject, log.data, log.topics, useNumberedParams);
-  }
-}
-
-// Create a decoder for all events defined in an abi. It returns a function which is called
-// on an array of log entries such as received from getLogs or getTransactionReceipt and parses
-// any matching log entries
-function logDecoder(abi) {
-  var useNumberedParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-  var eventMap = {};
-  abi.filter(function (item) {
-    return item.type === 'event';
-  }).map(function (item) {
-    eventMap[eventSignature(item)] = item;
-  });
-  return function (logItems) {
-    return logItems.map(function (log) {
-      return decodeLogItem(eventMap[log.topics[0]], log, useNumberedParams);
-    }).filter(function (i) {
-      return i;
-    });
-  };
-}
-
-module.exports = {
-  encodeParams: encodeParams,
-  decodeParams: decodeParams,
-  encodeMethod: encodeMethod,
-  decodeMethod: decodeMethod,
-  encodeEvent: encodeEvent,
-  decodeEvent: decodeEvent,
-  decodeLogItem: decodeLogItem,
-  logDecoder: logDecoder,
-  eventSignature: eventSignature,
-  encodeSignature: encodeSignature
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
-
-var BN = __webpack_require__(1);
-var numberToBN = __webpack_require__(2);
-var keccak256 = __webpack_require__(4).keccak_256;
-
-// from ethereumjs-util
-function stripZeros(aInput) {
-  var a = aInput; // eslint-disable-line
-  var first = a[0]; // eslint-disable-line
-  while (a.length > 0 && first.toString() === '0') {
-    a = a.slice(1);
-    first = a[0];
-  }
-  return a;
-}
-
-function bnToBuffer(bnInput) {
-  var bn = bnInput; // eslint-disable-line
-  var hex = bn.toString(16); // eslint-disable-line
-  if (hex.length % 2) {
-    hex = '0' + hex;
-  }
-  return stripZeros(new Buffer(hex, 'hex'));
-}
-
-function isHexString(value, length) {
-  if (typeof value !== 'string' || !value.match(/^0x[0-9A-Fa-f]*$/)) {
-    return false;
-  }
-  if (length && value.length !== 2 + 2 * length) {
-    return false;
-  }
-  return true;
-}
-
-function hexOrBuffer(valueInput, name) {
-  var value = valueInput; // eslint-disable-line
-  if (!Buffer.isBuffer(value)) {
-    if (!isHexString(value)) {
-      var error = new Error(name ? '[ethjs-abi] invalid ' + name : '[ethjs-abi] invalid hex or buffer, must be a prefixed alphanumeric even length hex string');
-      error.reason = '[ethjs-abi] invalid hex string, hex must be prefixed and alphanumeric (e.g. 0x023..)';
-      error.value = value;
-      throw error;
-    }
-
-    value = value.substring(2);
-    if (value.length % 2) {
-      value = '0' + value;
-    }
-    value = new Buffer(value, 'hex');
-  }
-
-  return value;
-}
-
-function hexlify(value) {
-  if (typeof value === 'number') {
-    return '0x' + bnToBuffer(new BN(value)).toString('hex');
-  } else if (value.mod || value.modulo) {
-    return '0x' + bnToBuffer(value).toString('hex');
-  } else {
-    // eslint-disable-line
-    return '0x' + hexOrBuffer(value).toString('hex');
-  }
-}
-
-// getKeys([{a: 1, b: 2}, {a: 3, b: 4}], 'a') => [1, 3]
-function getKeys(params, key, allowEmpty) {
-  var result = []; // eslint-disable-line
-
-  if (!Array.isArray(params)) {
-    throw new Error('[ethjs-abi] while getting keys, invalid params value ' + JSON.stringify(params));
-  }
-
-  for (var i = 0; i < params.length; i++) {
-    // eslint-disable-line
-    var value = params[i][key]; // eslint-disable-line
-    if (allowEmpty && !value) {
-      value = '';
-    } else if (typeof value !== 'string') {
-      throw new Error('[ethjs-abi] while getKeys found invalid ABI data structure, type value not string');
-    }
-    result.push(value);
-  }
-
-  return result;
-}
-
-function coderNumber(size, signed) {
-  return {
-    encode: function encodeNumber(valueInput) {
-      var value = valueInput; // eslint-disable-line
-
-      if (typeof value === 'object' && value.toString && (value.toTwos || value.dividedToIntegerBy)) {
-        value = value.toString(10).split('.')[0];
-      }
-
-      if (typeof value === 'string' || typeof value === 'number') {
-        value = String(value).split('.')[0];
-      }
-
-      value = numberToBN(value);
-      value = value.toTwos(size * 8).maskn(size * 8);
-      if (signed) {
-        value = value.fromTwos(size * 8).toTwos(256);
-      }
-      return value.toArrayLike(Buffer, 'be', 32);
-    },
-    decode: function decodeNumber(data, offset) {
-      var junkLength = 32 - size; // eslint-disable-line
-      var value = new BN(data.slice(offset + junkLength, offset + 32)); // eslint-disable-line
-      if (signed) {
-        value = value.fromTwos(size * 8);
-      } else {
-        value = value.maskn(size * 8);
-      }
-      return {
-        consumed: 32,
-        value: new BN(value.toString(10))
-      };
-    }
-  };
-}
-var uint256Coder = coderNumber(32, false);
-
-var coderBoolean = {
-  encode: function encodeBoolean(value) {
-    return uint256Coder.encode(value ? 1 : 0);
-  },
-  decode: function decodeBoolean(data, offset) {
-    var result = uint256Coder.decode(data, offset); // eslint-disable-line
-    return {
-      consumed: result.consumed,
-      value: !result.value.isZero()
-    };
-  }
-};
-
-function coderFixedBytes(length) {
-  return {
-    encode: function encodeFixedBytes(valueInput) {
-      var value = valueInput; // eslint-disable-line
-      value = hexOrBuffer(value);
-
-      if (value.length === 32) {
-        return value;
-      }
-
-      var result = new Buffer(32); // eslint-disable-line
-      result.fill(0);
-      value.copy(result);
-      return result;
-    },
-    decode: function decodeFixedBytes(data, offset) {
-      if (data.length !== 0 && data.length < offset + 32) {
-        throw new Error('[ethjs-abi] while decoding fixed bytes, invalid bytes data length: ' + length);
-      }
-
-      return {
-        consumed: 32,
-        value: '0x' + data.slice(offset, offset + length).toString('hex')
-      };
-    }
-  };
-}
-
-var coderAddress = {
-  encode: function encodeAddress(valueInput) {
-    var value = valueInput; // eslint-disable-line
-    var result = new Buffer(32); // eslint-disable-line
-    if (!isHexString(value, 20)) {
-      throw new Error('[ethjs-abi] while encoding address, invalid address value, not alphanumeric 20 byte hex string');
-    }
-    value = hexOrBuffer(value);
-    result.fill(0);
-    value.copy(result, 12);
-    return result;
-  },
-  decode: function decodeAddress(data, offset) {
-    if (data.length === 0) {
-      return {
-        consumed: 32,
-        value: '0x'
-      };
-    }
-    if (data.length !== 0 && data.length < offset + 32) {
-      throw new Error('[ethjs-abi] while decoding address data, invalid address data, invalid byte length ' + data.length);
-    }
-    return {
-      consumed: 32,
-      value: '0x' + data.slice(offset + 12, offset + 32).toString('hex')
-    };
-  }
-};
-
-function encodeDynamicBytesHelper(value) {
-  var dataLength = parseInt(32 * Math.ceil(value.length / 32)); // eslint-disable-line
-  var padding = new Buffer(dataLength - value.length); // eslint-disable-line
-  padding.fill(0);
-
-  return Buffer.concat([uint256Coder.encode(value.length), value, padding]);
-}
-
-function decodeDynamicBytesHelper(data, offset) {
-  if (data.length !== 0 && data.length < offset + 32) {
-    throw new Error('[ethjs-abi] while decoding dynamic bytes data, invalid bytes length: ' + data.length + ' should be less than ' + (offset + 32));
-  }
-
-  var length = uint256Coder.decode(data, offset).value; // eslint-disable-line
-  length = length.toNumber();
-  if (data.length !== 0 && data.length < offset + 32 + length) {
-    throw new Error('[ethjs-abi] while decoding dynamic bytes data, invalid bytes length: ' + data.length + ' should be less than ' + (offset + 32 + length));
-  }
-
-  return {
-    consumed: parseInt(32 + 32 * Math.ceil(length / 32), 10),
-    value: data.slice(offset + 32, offset + 32 + length)
-  };
-}
-
-var coderDynamicBytes = {
-  encode: function encodeDynamicBytes(value) {
-    return encodeDynamicBytesHelper(hexOrBuffer(value));
-  },
-  decode: function decodeDynamicBytes(data, offset) {
-    var result = decodeDynamicBytesHelper(data, offset); // eslint-disable-line
-    result.value = '0x' + result.value.toString('hex');
-    return result;
-  },
-  dynamic: true
-};
-
-var coderString = {
-  encode: function encodeString(value) {
-    return encodeDynamicBytesHelper(new Buffer(value, 'utf8'));
-  },
-  decode: function decodeString(data, offset) {
-    var result = decodeDynamicBytesHelper(data, offset); // eslint-disable-line
-    result.value = result.value.toString('utf8');
-    return result;
-  },
-  dynamic: true
-};
-
-function coderArray(coder, lengthInput) {
-  return {
-    encode: function encodeArray(value) {
-      var result = new Buffer(0); // eslint-disable-line
-      var length = lengthInput; // eslint-disable-line
-
-      if (!Array.isArray(value)) {
-        throw new Error('[ethjs-abi] while encoding array, invalid array data, not type Object (Array)');
-      }
-
-      if (length === -1) {
-        length = value.length;
-        result = uint256Coder.encode(length);
-      }
-
-      if (length !== value.length) {
-        throw new Error('[ethjs-abi] while encoding array, size mismatch array length ' + length + ' does not equal ' + value.length);
-      }
-
-      value.forEach(function (resultValue) {
-        result = Buffer.concat([result, coder.encode(resultValue)]);
-      });
-
-      return result;
-    },
-    decode: function decodeArray(data, offsetInput) {
-      var length = lengthInput; // eslint-disable-line
-      var offset = offsetInput; // eslint-disable-line
-      // @TODO:
-      // if (data.length < offset + length * 32) { throw new Error('invalid array'); }
-
-      var consumed = 0; // eslint-disable-line
-      var decodeResult; // eslint-disable-line
-
-      if (length === -1) {
-        decodeResult = uint256Coder.decode(data, offset);
-        length = decodeResult.value.toNumber();
-        consumed += decodeResult.consumed;
-        offset += decodeResult.consumed;
-      }
-
-      var value = []; // eslint-disable-line
-
-      for (var i = 0; i < length; i++) {
-        // eslint-disable-line
-        var loopResult = coder.decode(data, offset);
-        consumed += loopResult.consumed;
-        offset += loopResult.consumed;
-        value.push(loopResult.value);
-      }
-
-      return {
-        consumed: consumed,
-        value: value
-      };
-    },
-    dynamic: lengthInput === -1
-  };
-}
-
-// Break the type up into [staticType][staticArray]*[dynamicArray]? | [dynamicType] and
-// build the coder up from its parts
-var paramTypePart = new RegExp(/^((u?int|bytes)([0-9]*)|(address|bool|string)|(\[([0-9]*)\]))/);
-
-function getParamCoder(typeInput) {
-  var type = typeInput; // eslint-disable-line
-  var coder = null; // eslint-disable-line
-  var invalidTypeErrorMessage = '[ethjs-abi] while getting param coder (getParamCoder) type value ' + JSON.stringify(type) + ' is either invalid or unsupported by ethjs-abi.';
-
-  while (type) {
-    var part = type.match(paramTypePart); // eslint-disable-line
-    if (!part) {
-      throw new Error(invalidTypeErrorMessage);
-    }
-    type = type.substring(part[0].length);
-
-    var prefix = part[2] || part[4] || part[5]; // eslint-disable-line
-    switch (prefix) {
-      case 'int':case 'uint':
-        if (coder) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        var intSize = parseInt(part[3] || 256); // eslint-disable-line
-        if (intSize === 0 || intSize > 256 || intSize % 8 !== 0) {
-          throw new Error('[ethjs-abi] while getting param coder for type ' + type + ', invalid ' + prefix + '<N> width: ' + type);
-        }
-
-        coder = coderNumber(intSize / 8, prefix === 'int');
-        break;
-
-      case 'bool':
-        if (coder) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        coder = coderBoolean;
-        break;
-
-      case 'string':
-        if (coder) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        coder = coderString;
-        break;
-
-      case 'bytes':
-        if (coder) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        if (part[3]) {
-          var size = parseInt(part[3]); // eslint-disable-line
-          if (size === 0 || size > 32) {
-            throw new Error('[ethjs-abi] while getting param coder for prefix bytes, invalid type ' + type + ', size ' + size + ' should be 0 or greater than 32');
-          }
-          coder = coderFixedBytes(size);
-        } else {
-          coder = coderDynamicBytes;
-        }
-        break;
-
-      case 'address':
-        if (coder) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        coder = coderAddress;
-        break;
-
-      case '[]':
-        if (!coder || coder.dynamic) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        coder = coderArray(coder, -1);
-        break;
-
-      // "[0-9+]"
-      default:
-        if (!coder || coder.dynamic) {
-          throw new Error(invalidTypeErrorMessage);
-        }
-        var defaultSize = parseInt(part[6]); // eslint-disable-line
-        coder = coderArray(coder, defaultSize);
-    }
-  }
-
-  if (!coder) {
-    throw new Error(invalidTypeErrorMessage);
-  }
-  return coder;
-}
-
-module.exports = {
-  BN: BN,
-  bnToBuffer: bnToBuffer,
-  isHexString: isHexString,
-  hexOrBuffer: hexOrBuffer,
-  hexlify: hexlify,
-  stripZeros: stripZeros,
-
-  keccak256: keccak256,
-
-  getKeys: getKeys,
-  numberToBN: numberToBN,
-  coderNumber: coderNumber,
-  uint256Coder: uint256Coder,
-  coderBoolean: coderBoolean,
-  coderFixedBytes: coderFixedBytes,
-  coderAddress: coderAddress,
-  coderDynamicBytes: coderDynamicBytes,
-  coderString: coderString,
-  coderArray: coderArray,
-  paramTypePart: paramTypePart,
-  getParamCoder: getParamCoder
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-'use strict';
-
-var abi = __webpack_require__(14); // eslint-disable-line
-var keccak256 = __webpack_require__(4).keccak_256; // eslint-disable-line
-var EthFilter = __webpack_require__(6); // eslint-disable-line
-var getKeys = __webpack_require__(3).getKeys; // eslint-disable-line
-var arrayContainsArray = __webpack_require__(3).arrayContainsArray;
-
-function hasTransactionObject(args) {
-  var txObjectProperties = ['from', 'to', 'data', 'value', 'gasPrice', 'gas'];
-  if (typeof args === 'object' && Array.isArray(args) === true && args.length > 0) {
-    if (typeof args[args.length - 1] === 'object' && (Object.keys(args[args.length - 1]).length === 0 || arrayContainsArray(Object.keys(args[args.length - 1]), txObjectProperties, true))) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function getConstructorFromABI(contractABI) {
-  return contractABI.filter(function (json) {
-    return json.type === 'constructor';
-  })[0];
-}
-
-function getCallableMethodsFromABI(contractABI) {
-  return contractABI.filter(function (json) {
-    return (json.type === 'function' || json.type === 'event') && json.name.length > 0;
-  });
-}
-
-function contractFactory(query) {
-  return function ContractFactory(contractABI, contractBytecode, contractDefaultTxObject) {
-    if (!Array.isArray(contractABI)) {
-      throw new Error('[ethjs-contract] Contract ABI must be type Array, got type ' + typeof contractABI);
-    }
-    if (typeof contractBytecode !== 'undefined' && typeof contractBytecode !== 'string') {
-      throw new Error('[ethjs-contract] Contract bytecode must be type String, got type ' + typeof contractBytecode);
-    }
-    if (typeof contractDefaultTxObject !== 'undefined' && typeof contractDefaultTxObject !== 'object') {
-      throw new Error('[ethjs-contract] Contract default tx object must be type Object, got type ' + typeof contractABI);
-    }
-
-    var output = {};
-    output.at = function atContract(address) {
-      function Contract() {
-        var self = this;
-        self.abi = contractABI || [];
-        self.query = query;
-        self.address = address || '0x';
-        self.bytecode = contractBytecode || '0x';
-        self.defaultTxObject = contractDefaultTxObject || {};
-        self.filters = new EthFilter(query);
-
-        getCallableMethodsFromABI(contractABI).forEach(function (methodObject) {
-          self[methodObject.name] = function contractMethod() {
-            // eslint-disable-line
-            var queryMethod = 'call'; // eslint-disable-line
-            var providedTxObject = {}; // eslint-disable-line
-            var methodCallback = function methodCallback() {}; // eslint-disable-line
-            var methodArgs = [].slice.call(arguments); // eslint-disable-line
-            if (typeof methodArgs[methodArgs.length - 1] === 'function') {
-              methodCallback = methodArgs.pop();
-            }
-
-            if (methodObject.type === 'function') {
-              return new Promise(function (resolve, reject) {
-                function newMethodCallback(callbackError, callbackResult) {
-                  if (queryMethod === 'call' && !callbackError) {
-                    try {
-                      var decodedMethodResult = abi.decodeMethod(methodObject, callbackResult);
-
-                      resolve(decodedMethodResult);
-                      methodCallback(null, decodedMethodResult);
-                    } catch (decodeFormattingError) {
-                      var decodingError = new Error('[ethjs-contract] while formatting incoming raw call data ' + JSON.stringify(callbackResult) + ' ' + decodeFormattingError);
-
-                      reject(decodingError);
-                      methodCallback(decodingError, null);
-                    }
-                  } else if (queryMethod === 'sendTransaction' && !callbackError) {
-                    resolve(callbackResult);
-                    methodCallback(null, callbackResult);
-                  } else {
-                    reject(callbackError);
-                    methodCallback(callbackError, null);
-                  }
-                }
-
-                if (hasTransactionObject(methodArgs)) providedTxObject = methodArgs.pop();
-                var methodTxObject = Object.assign({}, self.defaultTxObject, providedTxObject, {
-                  to: self.address
-                });
-                methodTxObject.data = abi.encodeMethod(methodObject, methodArgs);
-
-                if (methodObject.constant === false) {
-                  queryMethod = 'sendTransaction';
-                }
-
-                query[queryMethod](methodTxObject, newMethodCallback);
-              });
-            } else if (methodObject.type === 'event') {
-              var _ret = function () {
-                var filterInputTypes = getKeys(methodObject.inputs, 'type', false);
-                var filterTopic = '0x' + keccak256(methodObject.name + '(' + filterInputTypes.join(',') + ')');
-                var filterTopcis = [filterTopic];
-                var argsObject = Object.assign({}, methodArgs[0]) || {};
-
-                return {
-                  v: new self.filters.Filter(Object.assign({}, argsObject, {
-                    decoder: function decoder(logData) {
-                      return abi.decodeEvent(methodObject, logData, filterTopcis);
-                    },
-                    defaultFilterObject: Object.assign({}, methodArgs[0] || {}, {
-                      to: self.address,
-                      topics: filterTopcis
-                    })
-                  }))
-                };
-              }();
-
-              if (typeof _ret === "object") return _ret.v;
-            }
-          };
-        });
-      }
-
-      return new Contract();
-    };
-
-    output['new'] = function newContract() {
-      var providedTxObject = {}; // eslint-disable-line
-      var newMethodCallback = function newMethodCallback() {}; // eslint-disable-line
-      var newMethodArgs = [].slice.call(arguments); // eslint-disable-line
-      if (typeof newMethodArgs[newMethodArgs.length - 1] === 'function') newMethodCallback = newMethodArgs.pop();
-      if (hasTransactionObject(newMethodArgs)) providedTxObject = newMethodArgs.pop();
-      var constructMethod = getConstructorFromABI(contractABI);
-      var assembleTxObject = Object.assign({}, contractDefaultTxObject, providedTxObject);
-
-      // if contract bytecode was predefined
-      if (contractBytecode) {
-        assembleTxObject.data = contractBytecode;
-      }
-
-      // if constructor bytecode
-      if (constructMethod) {
-        var constructBytecode = abi.encodeParams(getKeys(constructMethod.inputs, 'type'), newMethodArgs).substring(2); // eslint-disable-line
-        assembleTxObject.data = '' + assembleTxObject.data + constructBytecode;
-      }
-
-      return query.sendTransaction(assembleTxObject, newMethodCallback);
-    };
-
-    return output;
-  };
-}
-
-function EthContract(query) {
-  return contractFactory(query);
-}
-
-module.exports = EthContract;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
-
-/* eslint-disable */
-
-var utils = __webpack_require__(15);
+var utils = __webpack_require__(13);
 var uint256Coder = utils.uint256Coder;
 var coderBoolean = utils.coderBoolean;
 var coderFixedBytes = utils.coderFixedBytes;
@@ -7468,14 +6261,469 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ },
-/* 15 */
+/* 7 */
+/***/ function(module, exports) {
+
+"use strict";
+'use strict';
+
+function constructFilter(filterName, query) {
+  function Filter(options) {
+    var self = this;
+    self.filterId = null;
+    self.options = Object.assign({
+      delay: 300,
+      decoder: function decodeData(data) {
+        return data;
+      },
+      defaultFilterObject: {}
+    }, options || {});
+
+    self.watchers = {};
+    self.interval = setInterval(function () {
+      if (self.filterId !== null && Object.keys(self.watchers).length > 0) {
+        query.getFilterChanges(self.filterId, function (changeError, changeResult) {
+          var decodedChangeResults = [];
+          var decodingError = null; // eslint-disable-line
+
+          if (!changeError) {
+            try {
+              changeResult.forEach(function (log, logIndex) {
+                decodedChangeResults[logIndex] = changeResult[logIndex];
+                decodedChangeResults[logIndex].data = self.options.decoder(decodedChangeResults[logIndex].data);
+              });
+            } catch (decodingErrorMesage) {
+              decodingError = new Error('[ethjs-filter] while decoding filter change event data from RPC \'' + JSON.stringify(decodedChangeResults) + '\': ' + decodingErrorMesage);
+            }
+          }
+
+          Object.keys(self.watchers).forEach(function (id) {
+            var watcher = self.watchers[id];
+            if (watcher.stop === true) {
+              delete self.watchers[id];
+              return;
+            }
+
+            if (decodingError) {
+              watcher.reject(decodingError);
+              watcher.callback(decodingError, null);
+            } else {
+              if (changeError) {
+                watcher.reject(changeError);
+              } else if (Array.isArray(decodedChangeResults) && changeResult.length > 0) {
+                watcher.resolve(decodedChangeResults);
+              }
+
+              watcher.callback(changeError, decodedChangeResults);
+            }
+          });
+        });
+      }
+    }, self.options.delay);
+  }
+
+  Filter.prototype.at = function atFilter(filterId) {
+    var self = this;
+    self.filterId = filterId;
+  };
+
+  Filter.prototype.watch = function watchFilter(watchCallbackInput) {
+    var callback = watchCallbackInput || function () {}; // eslint-disable-line
+    var self = this;
+    var id = Math.random().toString(36).substring(7);
+    var output = new Promise(function (resolve, reject) {
+      self.watchers[id] = { resolve: resolve, reject: reject, callback: callback, stop: false };
+    });
+
+    output.stopWatching = function stopWatching() {
+      self.watchers[id].stop = true;
+    };
+
+    return output;
+  };
+
+  Filter.prototype.uninstall = function uninstallFilter(cb) {
+    var self = this;
+    var callback = cb || function emptyCallback() {};
+    self.watchers = Object.assign({});
+    clearInterval(self.interval);
+
+    return new Promise(function (resolve, reject) {
+      query.uninstallFilter(self.filterId, function (uninstallError, uninstallResilt) {
+        if (uninstallError) {
+          reject(uninstallError);
+        } else {
+          resolve(uninstallResilt);
+        }
+
+        callback(uninstallError, uninstallResilt);
+      });
+    });
+  };
+
+  Filter.prototype['new'] = function newFilter() {
+    var callback = function callback() {}; // eslint-disable-line
+    var self = this;
+    var filterInputs = [];
+    var args = [].slice.call(arguments); // eslint-disable-line
+    // pop callback if provided
+    if (typeof args[args.length - 1] === 'function') {
+      callback = args.pop();
+    }
+
+    // if a param object was presented, push that into the inputs
+    if (filterName === 'Filter') {
+      filterInputs.push(Object.assign(self.options.defaultFilterObject, args[args.length - 1] || {}));
+    }
+
+    return new Promise(function (resolve, reject) {
+      // add complex callback
+      filterInputs.push(function (setupError, filterId) {
+        if (!setupError) {
+          self.filterId = filterId;
+          resolve(filterId);
+        } else {
+          reject(setupError);
+        }
+
+        callback(setupError, filterId);
+      });
+
+      // apply filter, call new.. filter method
+      query['new' + filterName].apply(query, filterInputs);
+    });
+  };
+
+  return Filter;
+}
+
+/**
+ * EthFilter constructor, intakes a query, helps manage filter event polling
+ *
+ * @method EthFilter
+ * @param {Object} query the `ethjs-query` or `eth-query` object
+ * @returns {Object} output an EthFilter instance
+ * @throws error if new is not used
+ */
+
+function EthFilter(query) {
+  var self = this;
+  if (!(self instanceof EthFilter)) {
+    throw new Error('the EthFilter object must be instantiated with `new` flag.. (e.g. `const filters = new EthFilter(query);`)');
+  }
+  if (typeof query !== 'object') {
+    throw new Error('the EthFilter object must be instantiated with an EthQuery instance (e.g. `const filters = new EthFilter(new EthQuery(provider));`). See github.com/ethjs/ethjs-query for more details..');
+  }
+
+  self.Filter = constructFilter('Filter', query);
+  self.BlockFilter = constructFilter('BlockFilter', query);
+  self.PendingTransactionFilter = constructFilter('PendingTransactionFilter', query);
+}
+
+// export EthFilter
+module.exports = EthFilter;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+/**
+ * Returns a `Boolean` on whether or not the a `String` starts with '0x'
+ * @param {String} str the string input value
+ * @return {Boolean} a boolean if it is or is not hex prefixed
+ * @throws if the str input is not a string
+ */
+module.exports = function isHexPrefixed(str) {
+  if (typeof str !== 'string') {
+    throw new Error("[is-hex-prefixed] value must be type 'string', is currently type " + (typeof str) + ", while checking isHexPrefixed.");
+  }
+
+  return str.slice(0, 2) === '0x';
+}
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() { return this; })();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
+
+var EthQuery = __webpack_require__(17);
+var EthFilter = __webpack_require__(7);
+var EthContract = __webpack_require__(14);
+var HttpProvider = __webpack_require__(16);
+var abi = __webpack_require__(6);
+// const getTxSuccess = require('ethjs-transaction-success'); // eslint-disable-line
+var unit = __webpack_require__(19);
+var keccak256 = __webpack_require__(4).keccak_256;
+var toBN = __webpack_require__(3);
+var BN = __webpack_require__(1);
+var utils = __webpack_require__(2);
+var getTransactionSuccess = __webpack_require__(11);
+
+module.exports = Eth;
+
+/**
+ * Returns the ethjs Eth instance.
+ *
+ * @method Eth
+ * @param {Object} cprovider the web3 standard provider object
+ * @param {Object} options the Eth options object
+ * @returns {Object} eth Eth object instance
+ * @throws if the new flag is not used in construction
+ */
+
+function Eth(cprovider, options) {
+  if (!(this instanceof Eth)) {
+    throw new Error('[ethjs] the Eth object requires you construct it with the "new" flag (i.e. `const eth = new Eth(...);`).');
+  }
+  var self = this;
+  self.options = options || {};
+  var query = new EthQuery(cprovider, self.options.query);
+  Object.keys(Object.getPrototypeOf(query)).forEach(function (methodName) {
+    self[methodName] = function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return query[methodName].apply(query, args);
+    };
+  });
+  self.filter = new EthFilter(query, self.options.query);
+  self.contract = new EthContract(query, self.options.query);
+  self.currentProvider = query.rpc.currentProvider;
+  self.setProvider = query.setProvider;
+  self.getTransactionSuccess = getTransactionSuccess(self);
+}
+
+Eth.BN = BN;
+Eth.isAddress = function (val) {
+  return utils.isHexString(val, 20);
+};
+Eth.keccak256 = function (val) {
+  return '0x' + keccak256(val);
+};
+Eth.Buffer = Buffer;
+Eth.isHexString = utils.isHexString;
+Eth.fromWei = unit.fromWei;
+Eth.toWei = unit.toWei;
+Eth.toBN = toBN;
+Eth.abi = abi;
+Eth.fromAscii = utils.fromAscii;
+Eth.toAscii = utils.toAscii;
+Eth.fromUtf8 = utils.fromUtf8;
+Eth.toUtf8 = utils.toUtf8;
+Eth.HttpProvider = HttpProvider;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+"use strict";
+"use strict";
+
+module.exports = function (eth) {
+  return function (txHash, callback) {
+    var count = 0;
+
+    var timeout = eth.options.timeout || 800000;
+    var interval = eth.options.interval || 7000;
+
+    var prom = new Promise(function (resolve, reject) {
+      var txInterval = setInterval(function () {
+        eth.getTransactionReceipt(txHash, function (err, result) {
+          if (err) {
+            clearInterval(txInterval);
+            reject(err);
+          }
+
+          if (!err && result) {
+            clearInterval(txInterval);
+            resolve(result);
+          }
+        });
+
+        if (count >= timeout) {
+          clearInterval(txInterval);
+          var errMessage = "Receipt timeout waiting for tx hash: " + txHash;
+          reject(errMessage);
+        }
+
+        count += interval;
+      }, interval);
+    });
+
+    if (callback) {
+      prom.then(function (res) {
+        return callback(null, res);
+      })["catch"](function (err) {
+        return callback(err, null);
+      });
+    }
+
+    return callback ? null : prom;
+  };
+};
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+"use strict";
+'use strict'
+
+exports.byteLength = byteLength
+exports.toByteArray = toByteArray
+exports.fromByteArray = fromByteArray
+
+var lookup = []
+var revLookup = []
+var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array
+
+var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+for (var i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i]
+  revLookup[code.charCodeAt(i)] = i
+}
+
+// Support decoding URL-safe base64 strings, as Node.js does.
+// See: https://en.wikipedia.org/wiki/Base64#URL_applications
+revLookup['-'.charCodeAt(0)] = 62
+revLookup['_'.charCodeAt(0)] = 63
+
+function placeHoldersCount (b64) {
+  var len = b64.length
+  if (len % 4 > 0) {
+    throw new Error('Invalid string. Length must be a multiple of 4')
+  }
+
+  // the number of equal signs (place holders)
+  // if there are two placeholders, than the two characters before it
+  // represent one byte
+  // if there is only one, then the three characters before it represent 2 bytes
+  // this is just a cheap hack to not do indexOf twice
+  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0
+}
+
+function byteLength (b64) {
+  // base64 is 4/3 + up to two characters of the original data
+  return (b64.length * 3 / 4) - placeHoldersCount(b64)
+}
+
+function toByteArray (b64) {
+  var i, l, tmp, placeHolders, arr
+  var len = b64.length
+  placeHolders = placeHoldersCount(b64)
+
+  arr = new Arr((len * 3 / 4) - placeHolders)
+
+  // if there are placeholders, only get up to the last complete 4 chars
+  l = placeHolders > 0 ? len - 4 : len
+
+  var L = 0
+
+  for (i = 0; i < l; i += 4) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 18) | (revLookup[b64.charCodeAt(i + 1)] << 12) | (revLookup[b64.charCodeAt(i + 2)] << 6) | revLookup[b64.charCodeAt(i + 3)]
+    arr[L++] = (tmp >> 16) & 0xFF
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  if (placeHolders === 2) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 2) | (revLookup[b64.charCodeAt(i + 1)] >> 4)
+    arr[L++] = tmp & 0xFF
+  } else if (placeHolders === 1) {
+    tmp = (revLookup[b64.charCodeAt(i)] << 10) | (revLookup[b64.charCodeAt(i + 1)] << 4) | (revLookup[b64.charCodeAt(i + 2)] >> 2)
+    arr[L++] = (tmp >> 8) & 0xFF
+    arr[L++] = tmp & 0xFF
+  }
+
+  return arr
+}
+
+function tripletToBase64 (num) {
+  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F]
+}
+
+function encodeChunk (uint8, start, end) {
+  var tmp
+  var output = []
+  for (var i = start; i < end; i += 3) {
+    tmp = ((uint8[i] << 16) & 0xFF0000) + ((uint8[i + 1] << 8) & 0xFF00) + (uint8[i + 2] & 0xFF)
+    output.push(tripletToBase64(tmp))
+  }
+  return output.join('')
+}
+
+function fromByteArray (uint8) {
+  var tmp
+  var len = uint8.length
+  var extraBytes = len % 3 // if we have 1 byte left, pad 2 bytes
+  var output = ''
+  var parts = []
+  var maxChunkLength = 16383 // must be multiple of 3
+
+  // go through the array every three bytes, we'll deal with trailing stuff later
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(encodeChunk(uint8, i, (i + maxChunkLength) > len2 ? len2 : (i + maxChunkLength)))
+  }
+
+  // pad the end with zeros, but make sure to not forget the extra bytes
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1]
+    output += lookup[tmp >> 2]
+    output += lookup[(tmp << 4) & 0x3F]
+    output += '=='
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + (uint8[len - 1])
+    output += lookup[tmp >> 10]
+    output += lookup[(tmp >> 4) & 0x3F]
+    output += lookup[(tmp << 2) & 0x3F]
+    output += '='
+  }
+
+  parts.push(output)
+
+  return parts.join('')
+}
+
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Buffer) {'use strict';
 
 var BN = __webpack_require__(1);
-var numberToBN = __webpack_require__(2);
+var numberToBN = __webpack_require__(3);
 var keccak256 = __webpack_require__(4).keccak_256;
 
 // from ethereumjs-util
@@ -7892,15 +7140,183 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0).Buffer))
 
 /***/ },
-/* 16 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 'use strict';
 
-var schema = __webpack_require__(20);
-var util = __webpack_require__(3);
-var numberToBN = __webpack_require__(2);
+var abi = __webpack_require__(6); // eslint-disable-line
+var keccak256 = __webpack_require__(4).keccak_256; // eslint-disable-line
+var EthFilter = __webpack_require__(7); // eslint-disable-line
+var getKeys = __webpack_require__(2).getKeys; // eslint-disable-line
+var arrayContainsArray = __webpack_require__(2).arrayContainsArray;
+
+function hasTransactionObject(args) {
+  var txObjectProperties = ['from', 'to', 'data', 'value', 'gasPrice', 'gas'];
+  if (typeof args === 'object' && Array.isArray(args) === true && args.length > 0) {
+    if (typeof args[args.length - 1] === 'object' && (Object.keys(args[args.length - 1]).length === 0 || arrayContainsArray(Object.keys(args[args.length - 1]), txObjectProperties, true))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getConstructorFromABI(contractABI) {
+  return contractABI.filter(function (json) {
+    return json.type === 'constructor';
+  })[0];
+}
+
+function getCallableMethodsFromABI(contractABI) {
+  return contractABI.filter(function (json) {
+    return (json.type === 'function' || json.type === 'event') && json.name.length > 0;
+  });
+}
+
+function contractFactory(query) {
+  return function ContractFactory(contractABI, contractBytecode, contractDefaultTxObject) {
+    if (!Array.isArray(contractABI)) {
+      throw new Error('[ethjs-contract] Contract ABI must be type Array, got type ' + typeof contractABI);
+    }
+    if (typeof contractBytecode !== 'undefined' && typeof contractBytecode !== 'string') {
+      throw new Error('[ethjs-contract] Contract bytecode must be type String, got type ' + typeof contractBytecode);
+    }
+    if (typeof contractDefaultTxObject !== 'undefined' && typeof contractDefaultTxObject !== 'object') {
+      throw new Error('[ethjs-contract] Contract default tx object must be type Object, got type ' + typeof contractABI);
+    }
+
+    var output = {};
+    output.at = function atContract(address) {
+      function Contract() {
+        var self = this;
+        self.abi = contractABI || [];
+        self.query = query;
+        self.address = address || '0x';
+        self.bytecode = contractBytecode || '0x';
+        self.defaultTxObject = contractDefaultTxObject || {};
+        self.filters = new EthFilter(query);
+
+        getCallableMethodsFromABI(contractABI).forEach(function (methodObject) {
+          self[methodObject.name] = function contractMethod() {
+            // eslint-disable-line
+            var queryMethod = 'call'; // eslint-disable-line
+            var providedTxObject = {}; // eslint-disable-line
+            var methodCallback = function methodCallback() {}; // eslint-disable-line
+            var methodArgs = [].slice.call(arguments); // eslint-disable-line
+            if (typeof methodArgs[methodArgs.length - 1] === 'function') {
+              methodCallback = methodArgs.pop();
+            }
+
+            if (methodObject.type === 'function') {
+              return new Promise(function (resolve, reject) {
+                function newMethodCallback(callbackError, callbackResult) {
+                  if (queryMethod === 'call' && !callbackError) {
+                    try {
+                      var decodedMethodResult = abi.decodeMethod(methodObject, callbackResult);
+
+                      resolve(decodedMethodResult);
+                      methodCallback(null, decodedMethodResult);
+                    } catch (decodeFormattingError) {
+                      var decodingError = new Error('[ethjs-contract] while formatting incoming raw call data ' + JSON.stringify(callbackResult) + ' ' + decodeFormattingError);
+
+                      reject(decodingError);
+                      methodCallback(decodingError, null);
+                    }
+                  } else if (queryMethod === 'sendTransaction' && !callbackError) {
+                    resolve(callbackResult);
+                    methodCallback(null, callbackResult);
+                  } else {
+                    reject(callbackError);
+                    methodCallback(callbackError, null);
+                  }
+                }
+
+                if (hasTransactionObject(methodArgs)) providedTxObject = methodArgs.pop();
+                var methodTxObject = Object.assign({}, self.defaultTxObject, providedTxObject, {
+                  to: self.address
+                });
+                methodTxObject.data = abi.encodeMethod(methodObject, methodArgs);
+
+                if (methodObject.constant === false) {
+                  queryMethod = 'sendTransaction';
+                }
+
+                query[queryMethod](methodTxObject, newMethodCallback);
+              });
+            } else if (methodObject.type === 'event') {
+              var _ret = function () {
+                var filterInputTypes = getKeys(methodObject.inputs, 'type', false);
+                var filterTopic = '0x' + keccak256(methodObject.name + '(' + filterInputTypes.join(',') + ')');
+                var filterTopcis = [filterTopic];
+                var argsObject = Object.assign({}, methodArgs[0]) || {};
+
+                return {
+                  v: new self.filters.Filter(Object.assign({}, argsObject, {
+                    decoder: function decoder(logData) {
+                      return abi.decodeEvent(methodObject, logData, filterTopcis);
+                    },
+                    defaultFilterObject: Object.assign({}, methodArgs[0] || {}, {
+                      to: self.address,
+                      topics: filterTopcis
+                    })
+                  }))
+                };
+              }();
+
+              if (typeof _ret === "object") return _ret.v;
+            }
+          };
+        });
+      }
+
+      return new Contract();
+    };
+
+    output['new'] = function newContract() {
+      var providedTxObject = {}; // eslint-disable-line
+      var newMethodCallback = function newMethodCallback() {}; // eslint-disable-line
+      var newMethodArgs = [].slice.call(arguments); // eslint-disable-line
+      if (typeof newMethodArgs[newMethodArgs.length - 1] === 'function') newMethodCallback = newMethodArgs.pop();
+      if (hasTransactionObject(newMethodArgs)) providedTxObject = newMethodArgs.pop();
+      var constructMethod = getConstructorFromABI(contractABI);
+      var assembleTxObject = Object.assign({}, contractDefaultTxObject, providedTxObject);
+
+      // if contract bytecode was predefined
+      if (contractBytecode) {
+        assembleTxObject.data = contractBytecode;
+      }
+
+      // if constructor bytecode
+      if (constructMethod) {
+        var constructBytecode = abi.encodeParams(getKeys(constructMethod.inputs, 'type'), newMethodArgs).substring(2); // eslint-disable-line
+        assembleTxObject.data = '' + assembleTxObject.data + constructBytecode;
+      }
+
+      return query.sendTransaction(assembleTxObject, newMethodCallback);
+    };
+
+    return output;
+  };
+}
+
+function EthContract(query) {
+  return contractFactory(query);
+}
+
+module.exports = EthContract;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+'use strict';
+
+var schema = __webpack_require__(22);
+var util = __webpack_require__(2);
+var numberToBN = __webpack_require__(3);
 var stripHexPrefix = __webpack_require__(5);
 var padToEven = util.padToEven;
 var arrayContainsArray = util.arrayContainsArray;
@@ -8149,7 +7565,7 @@ module.exports = {
 };
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8164,7 +7580,7 @@ module.exports = {
  */
 
 // workaround to use httpprovider in different envs
-var XHR2 = __webpack_require__(27);
+var XHR2 = __webpack_require__(25);
 
 /*
 ""
@@ -8261,14 +7677,14 @@ HttpProvider.prototype.sendAsync = function (payload, callback) {
 module.exports = HttpProvider;
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 'use strict';
 
-var format = __webpack_require__(16);
-var EthRPC = __webpack_require__(19);
+var format = __webpack_require__(15);
+var EthRPC = __webpack_require__(18);
 
 module.exports = Eth;
 
@@ -8378,7 +7794,7 @@ function generateFnFor(method, methodObject) {
 }
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -8479,20 +7895,14 @@ function createPayload(data, id) {
 }
 
 /***/ },
-/* 20 */
-/***/ function(module, exports) {
-
-module.exports = {"methods":{"web3_clientVersion":[[],"S"],"web3_sha3":[["S"],"D",1],"net_version":[[],"S"],"net_peerCount":[[],"Q"],"net_listening":[[],"B"],"personal_sign":[["D","D20","S"],"D",2],"personal_ecRecover":[["D","D"],"D20",2],"eth_protocolVersion":[[],"S"],"eth_syncing":[[],"B|EthSyncing"],"eth_coinbase":[[],"D20"],"eth_mining":[[],"B"],"eth_hashrate":[[],"Q"],"eth_gasPrice":[[],"Q"],"eth_accounts":[[],["D20"]],"eth_blockNumber":[[],"Q"],"eth_getBalance":[["D20","Q|T"],"Q",1,2],"eth_getStorageAt":[["D20","Q","Q|T"],"D",2,2],"eth_getTransactionCount":[["D20","Q|T"],"Q",1,2],"eth_getBlockTransactionCountByHash":[["D32"],"Q",1],"eth_getBlockTransactionCountByNumber":[["Q|T"],"Q",1],"eth_getUncleCountByBlockHash":[["D32"],"Q",1],"eth_getUncleCountByBlockNumber":[["Q"],"Q",1],"eth_getCode":[["D20","Q|T"],"D",1,2],"eth_sign":[["D20","D"],"D",2],"eth_signTypedData":[["Array|DATA","D20"],"D",1],"eth_sendTransaction":[["SendTransaction"],"D",1],"eth_sendRawTransaction":[["D"],"D32",1],"eth_call":[["CallTransaction","Q|T"],"D",1,2],"eth_estimateGas":[["EstimateTransaction","Q|T"],"Q",1],"eth_getBlockByHash":[["D32","B"],"Block",2],"eth_getBlockByNumber":[["Q|T","B"],"Block",2],"eth_getTransactionByHash":[["D32"],"Transaction",1],"eth_getTransactionByBlockHashAndIndex":[["D32","Q"],"Transaction",2],"eth_getTransactionByBlockNumberAndIndex":[["Q|T","Q"],"Transaction",2],"eth_getTransactionReceipt":[["D32"],"Receipt",1],"eth_getUncleByBlockHashAndIndex":[["D32","Q"],"Block",1],"eth_getUncleByBlockNumberAndIndex":[["Q|T","Q"],"Block",2],"eth_getCompilers":[[],["S"]],"eth_compileLLL":[["S"],"D",1],"eth_compileSolidity":[["S"],"D",1],"eth_compileSerpent":[["S"],"D",1],"eth_newFilter":[["Filter"],"Q",1],"eth_newBlockFilter":[[],"Q"],"eth_newPendingTransactionFilter":[[],"Q"],"eth_uninstallFilter":[["Q"],"B",1],"eth_getFilterChanges":[["Q"],["FilterChange"],1],"eth_getFilterLogs":[["Q"],["FilterChange"],1],"eth_getLogs":[["Filter"],["FilterChange"],1],"eth_getWork":[[],["D"]],"eth_submitWork":[["D","D32","D32"],"B",3],"eth_submitHashrate":[["D","D"],"B",2],"db_putString":[["S","S","S"],"B",2],"db_getString":[["S","S"],"S",2],"db_putHex":[["S","S","D"],"B",2],"db_getHex":[["S","S"],"D",2],"shh_post":[["SHHPost"],"B",1],"shh_version":[[],"S"],"shh_newIdentity":[[],"D"],"shh_hasIdentity":[["D"],"B"],"shh_newGroup":[[],"D"],"shh_addToGroup":[["D"],"B",1],"shh_newFilter":[["SHHFilter"],"Q",1],"shh_uninstallFilter":[["Q"],"B",1],"shh_getFilterChanges":[["Q"],["SHHFilterChange"],1],"shh_getMessages":[["Q"],["SHHFilterChange"],1]},"tags":["latest","earliest","pending"],"objects":{"EthSyncing":{"__required":[],"startingBlock":"Q","currentBlock":"Q","highestBlock":"Q"},"SendTransaction":{"__required":["from","data"],"from":"D20","to":"D20","gas":"Q","gasPrice":"Q","value":"Q","data":"D","nonce":"Q"},"EstimateTransaction":{"__required":[],"from":"D20","to":"D20","gas":"Q","gasPrice":"Q","value":"Q","data":"D","nonce":"Q"},"CallTransaction":{"__required":["to"],"from":"D20","to":"D20","gas":"Q","gasPrice":"Q","value":"Q","data":"D","nonce":"Q"},"Block":{"__required":[],"number":"Q","hash":"D32","parentHash":"D32","nonce":"D","sha3Uncles":"D","logsBloom":"D","transactionsRoot":"D","stateRoot":"D","receiptsRoot":"D","miner":"D","difficulty":"Q","totalDifficulty":"Q","extraData":"D","size":"Q","gasLimit":"Q","gasUsed":"Q","timestamp":"Q","transactions":["DATA|Transaction"],"uncles":["D"]},"Transaction":{"__required":[],"hash":"D32","nonce":"Q","blockHash":"D32","blockNumber":"Q","transactionIndex":"Q","from":"D20","to":"D20","value":"Q","gasPrice":"Q","gas":"Q","input":"D"},"Receipt":{"__required":[],"transactionHash":"D32","transactionIndex":"Q","blockHash":"D32","blockNumber":"Q","cumulativeGasUsed":"Q","gasUsed":"Q","contractAddress":"D20","logs":["FilterChange"]},"Filter":{"__required":[],"fromBlock":"Q|T","toBlock":"Q|T","address":"D20","topics":["D"]},"FilterChange":{"__required":[],"removed":"B","logIndex":"Q","transactionIndex":"Q","transactionHash":"D32","blockHash":"D32","blockNumber":"Q","address":"D20","data":"Array|DATA","topics":["D"]},"SHHPost":{"__required":["topics","payload","priority","ttl"],"from":"D","to":"D","topics":["D"],"payload":"D","priority":"Q","ttl":"Q"},"SHHFilter":{"__required":["topics"],"to":"D","topics":["D"]},"SHHFilterChange":{"__required":[],"hash":"D","from":"D","to":"D","expiry":"Q","ttl":"Q","sent":"Q","topics":["D"],"payload":"D","workProved":"Q"},"SHHMessage":{"__required":[],"hash":"D","from":"D","to":"D","expiry":"Q","ttl":"Q","sent":"Q","topics":["D"],"payload":"D","workProved":"Q"}}}
-
-/***/ },
-/* 21 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 'use strict';
 
 var BN = __webpack_require__(1);
-var numberToBN = __webpack_require__(2);
+var numberToBN = __webpack_require__(3);
 
 var zero = new BN(0);
 var negative1 = new BN(-1);
@@ -8659,57 +8069,7 @@ module.exports = {
 };
 
 /***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-"use strict";
-"use strict";
-
-module.exports = function (eth) {
-  return function (txHash, callback) {
-    var count = 0;
-
-    var timeout = eth.options.timeout || 800000;
-    var interval = eth.options.interval || 7000;
-
-    var prom = new Promise(function (resolve, reject) {
-      var txInterval = setInterval(function () {
-        eth.getTransactionReceipt(txHash, function (err, result) {
-          if (err) {
-            clearInterval(txInterval);
-            reject(err);
-          }
-
-          if (!err && result) {
-            clearInterval(txInterval);
-            resolve(result);
-          }
-        });
-
-        if (count >= timeout) {
-          clearInterval(txInterval);
-          var errMessage = "Receipt timeout waiting for tx hash: " + txHash;
-          reject(errMessage);
-        }
-
-        count += interval;
-      }, interval);
-    });
-
-    if (callback) {
-      prom.then(function (res) {
-        return callback(null, res);
-      })["catch"](function (err) {
-        return callback(err, null);
-      });
-    }
-
-    return callback ? null : prom;
-  };
-};
-
-/***/ },
-/* 23 */
+/* 20 */
 /***/ function(module, exports) {
 
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
@@ -8799,7 +8159,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
 
 /***/ },
-/* 24 */
+/* 21 */
 /***/ function(module, exports) {
 
 var toString = {}.toString;
@@ -8810,7 +8170,638 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ },
-/* 25 */
+/* 22 */
+/***/ function(module, exports) {
+
+module.exports = {
+	"methods": {
+		"web3_clientVersion": [
+			[],
+			"S"
+		],
+		"web3_sha3": [
+			[
+				"S"
+			],
+			"D",
+			1
+		],
+		"net_version": [
+			[],
+			"S"
+		],
+		"net_peerCount": [
+			[],
+			"Q"
+		],
+		"net_listening": [
+			[],
+			"B"
+		],
+		"personal_sign": [
+			[
+				"D",
+				"D20",
+				"S"
+			],
+			"D",
+			2
+		],
+		"personal_ecRecover": [
+			[
+				"D",
+				"D"
+			],
+			"D20",
+			2
+		],
+		"eth_protocolVersion": [
+			[],
+			"S"
+		],
+		"eth_syncing": [
+			[],
+			"B|EthSyncing"
+		],
+		"eth_coinbase": [
+			[],
+			"D20"
+		],
+		"eth_mining": [
+			[],
+			"B"
+		],
+		"eth_hashrate": [
+			[],
+			"Q"
+		],
+		"eth_gasPrice": [
+			[],
+			"Q"
+		],
+		"eth_accounts": [
+			[],
+			[
+				"D20"
+			]
+		],
+		"eth_blockNumber": [
+			[],
+			"Q"
+		],
+		"eth_getBalance": [
+			[
+				"D20",
+				"Q|T"
+			],
+			"Q",
+			1,
+			2
+		],
+		"eth_getStorageAt": [
+			[
+				"D20",
+				"Q",
+				"Q|T"
+			],
+			"D",
+			2,
+			2
+		],
+		"eth_getTransactionCount": [
+			[
+				"D20",
+				"Q|T"
+			],
+			"Q",
+			1,
+			2
+		],
+		"eth_getBlockTransactionCountByHash": [
+			[
+				"D32"
+			],
+			"Q",
+			1
+		],
+		"eth_getBlockTransactionCountByNumber": [
+			[
+				"Q|T"
+			],
+			"Q",
+			1
+		],
+		"eth_getUncleCountByBlockHash": [
+			[
+				"D32"
+			],
+			"Q",
+			1
+		],
+		"eth_getUncleCountByBlockNumber": [
+			[
+				"Q"
+			],
+			"Q",
+			1
+		],
+		"eth_getCode": [
+			[
+				"D20",
+				"Q|T"
+			],
+			"D",
+			1,
+			2
+		],
+		"eth_sign": [
+			[
+				"D20",
+				"D"
+			],
+			"D",
+			2
+		],
+		"eth_signTypedData": [
+			[
+				"Array|DATA",
+				"D20"
+			],
+			"D",
+			1
+		],
+		"eth_sendTransaction": [
+			[
+				"SendTransaction"
+			],
+			"D",
+			1
+		],
+		"eth_sendRawTransaction": [
+			[
+				"D"
+			],
+			"D32",
+			1
+		],
+		"eth_call": [
+			[
+				"CallTransaction",
+				"Q|T"
+			],
+			"D",
+			1,
+			2
+		],
+		"eth_estimateGas": [
+			[
+				"EstimateTransaction",
+				"Q|T"
+			],
+			"Q",
+			1
+		],
+		"eth_getBlockByHash": [
+			[
+				"D32",
+				"B"
+			],
+			"Block",
+			2
+		],
+		"eth_getBlockByNumber": [
+			[
+				"Q|T",
+				"B"
+			],
+			"Block",
+			2
+		],
+		"eth_getTransactionByHash": [
+			[
+				"D32"
+			],
+			"Transaction",
+			1
+		],
+		"eth_getTransactionByBlockHashAndIndex": [
+			[
+				"D32",
+				"Q"
+			],
+			"Transaction",
+			2
+		],
+		"eth_getTransactionByBlockNumberAndIndex": [
+			[
+				"Q|T",
+				"Q"
+			],
+			"Transaction",
+			2
+		],
+		"eth_getTransactionReceipt": [
+			[
+				"D32"
+			],
+			"Receipt",
+			1
+		],
+		"eth_getUncleByBlockHashAndIndex": [
+			[
+				"D32",
+				"Q"
+			],
+			"Block",
+			1
+		],
+		"eth_getUncleByBlockNumberAndIndex": [
+			[
+				"Q|T",
+				"Q"
+			],
+			"Block",
+			2
+		],
+		"eth_getCompilers": [
+			[],
+			[
+				"S"
+			]
+		],
+		"eth_compileLLL": [
+			[
+				"S"
+			],
+			"D",
+			1
+		],
+		"eth_compileSolidity": [
+			[
+				"S"
+			],
+			"D",
+			1
+		],
+		"eth_compileSerpent": [
+			[
+				"S"
+			],
+			"D",
+			1
+		],
+		"eth_newFilter": [
+			[
+				"Filter"
+			],
+			"Q",
+			1
+		],
+		"eth_newBlockFilter": [
+			[],
+			"Q"
+		],
+		"eth_newPendingTransactionFilter": [
+			[],
+			"Q"
+		],
+		"eth_uninstallFilter": [
+			[
+				"Q"
+			],
+			"B",
+			1
+		],
+		"eth_getFilterChanges": [
+			[
+				"Q"
+			],
+			[
+				"FilterChange"
+			],
+			1
+		],
+		"eth_getFilterLogs": [
+			[
+				"Q"
+			],
+			[
+				"FilterChange"
+			],
+			1
+		],
+		"eth_getLogs": [
+			[
+				"Filter"
+			],
+			[
+				"FilterChange"
+			],
+			1
+		],
+		"eth_getWork": [
+			[],
+			[
+				"D"
+			]
+		],
+		"eth_submitWork": [
+			[
+				"D",
+				"D32",
+				"D32"
+			],
+			"B",
+			3
+		],
+		"eth_submitHashrate": [
+			[
+				"D",
+				"D"
+			],
+			"B",
+			2
+		],
+		"db_putString": [
+			[
+				"S",
+				"S",
+				"S"
+			],
+			"B",
+			2
+		],
+		"db_getString": [
+			[
+				"S",
+				"S"
+			],
+			"S",
+			2
+		],
+		"db_putHex": [
+			[
+				"S",
+				"S",
+				"D"
+			],
+			"B",
+			2
+		],
+		"db_getHex": [
+			[
+				"S",
+				"S"
+			],
+			"D",
+			2
+		],
+		"shh_post": [
+			[
+				"SHHPost"
+			],
+			"B",
+			1
+		],
+		"shh_version": [
+			[],
+			"S"
+		],
+		"shh_newIdentity": [
+			[],
+			"D"
+		],
+		"shh_hasIdentity": [
+			[
+				"D"
+			],
+			"B"
+		],
+		"shh_newGroup": [
+			[],
+			"D"
+		],
+		"shh_addToGroup": [
+			[
+				"D"
+			],
+			"B",
+			1
+		],
+		"shh_newFilter": [
+			[
+				"SHHFilter"
+			],
+			"Q",
+			1
+		],
+		"shh_uninstallFilter": [
+			[
+				"Q"
+			],
+			"B",
+			1
+		],
+		"shh_getFilterChanges": [
+			[
+				"Q"
+			],
+			[
+				"SHHFilterChange"
+			],
+			1
+		],
+		"shh_getMessages": [
+			[
+				"Q"
+			],
+			[
+				"SHHFilterChange"
+			],
+			1
+		]
+	},
+	"tags": [
+		"latest",
+		"earliest",
+		"pending"
+	],
+	"objects": {
+		"EthSyncing": {
+			"__required": [],
+			"startingBlock": "Q",
+			"currentBlock": "Q",
+			"highestBlock": "Q"
+		},
+		"SendTransaction": {
+			"__required": [
+				"from",
+				"data"
+			],
+			"from": "D20",
+			"to": "D20",
+			"gas": "Q",
+			"gasPrice": "Q",
+			"value": "Q",
+			"data": "D",
+			"nonce": "Q"
+		},
+		"EstimateTransaction": {
+			"__required": [],
+			"from": "D20",
+			"to": "D20",
+			"gas": "Q",
+			"gasPrice": "Q",
+			"value": "Q",
+			"data": "D",
+			"nonce": "Q"
+		},
+		"CallTransaction": {
+			"__required": [
+				"to"
+			],
+			"from": "D20",
+			"to": "D20",
+			"gas": "Q",
+			"gasPrice": "Q",
+			"value": "Q",
+			"data": "D",
+			"nonce": "Q"
+		},
+		"Block": {
+			"__required": [],
+			"number": "Q",
+			"hash": "D32",
+			"parentHash": "D32",
+			"nonce": "D",
+			"sha3Uncles": "D",
+			"logsBloom": "D",
+			"transactionsRoot": "D",
+			"stateRoot": "D",
+			"receiptsRoot": "D",
+			"miner": "D",
+			"difficulty": "Q",
+			"totalDifficulty": "Q",
+			"extraData": "D",
+			"size": "Q",
+			"gasLimit": "Q",
+			"gasUsed": "Q",
+			"timestamp": "Q",
+			"transactions": [
+				"DATA|Transaction"
+			],
+			"uncles": [
+				"D"
+			]
+		},
+		"Transaction": {
+			"__required": [],
+			"hash": "D32",
+			"nonce": "Q",
+			"blockHash": "D32",
+			"blockNumber": "Q",
+			"transactionIndex": "Q",
+			"from": "D20",
+			"to": "D20",
+			"value": "Q",
+			"gasPrice": "Q",
+			"gas": "Q",
+			"input": "D"
+		},
+		"Receipt": {
+			"__required": [],
+			"transactionHash": "D32",
+			"transactionIndex": "Q",
+			"blockHash": "D32",
+			"blockNumber": "Q",
+			"cumulativeGasUsed": "Q",
+			"gasUsed": "Q",
+			"contractAddress": "D20",
+			"logs": [
+				"FilterChange"
+			]
+		},
+		"Filter": {
+			"__required": [],
+			"fromBlock": "Q|T",
+			"toBlock": "Q|T",
+			"address": "D20",
+			"topics": [
+				"D"
+			]
+		},
+		"FilterChange": {
+			"__required": [],
+			"removed": "B",
+			"logIndex": "Q",
+			"transactionIndex": "Q",
+			"transactionHash": "D32",
+			"blockHash": "D32",
+			"blockNumber": "Q",
+			"address": "D20",
+			"data": "Array|DATA",
+			"topics": [
+				"D"
+			]
+		},
+		"SHHPost": {
+			"__required": [
+				"topics",
+				"payload",
+				"priority",
+				"ttl"
+			],
+			"from": "D",
+			"to": "D",
+			"topics": [
+				"D"
+			],
+			"payload": "D",
+			"priority": "Q",
+			"ttl": "Q"
+		},
+		"SHHFilter": {
+			"__required": [
+				"topics"
+			],
+			"to": "D",
+			"topics": [
+				"D"
+			]
+		},
+		"SHHFilterChange": {
+			"__required": [],
+			"hash": "D",
+			"from": "D",
+			"to": "D",
+			"expiry": "Q",
+			"ttl": "Q",
+			"sent": "Q",
+			"topics": [
+				"D"
+			],
+			"payload": "D",
+			"workProved": "Q"
+		},
+		"SHHMessage": {
+			"__required": [],
+			"hash": "D",
+			"from": "D",
+			"to": "D",
+			"expiry": "Q",
+			"ttl": "Q",
+			"sent": "Q",
+			"topics": [
+				"D"
+			],
+			"payload": "D",
+			"workProved": "Q"
+		}
+	}
+};
+
+/***/ },
+/* 23 */
 /***/ function(module, exports) {
 
 // shim for using process in browser
@@ -9000,7 +8991,7 @@ process.umask = function() { return 0; };
 
 
 /***/ },
-/* 26 */
+/* 24 */
 /***/ function(module, exports) {
 
 module.exports = function(module) {
@@ -9026,164 +9017,21 @@ module.exports = function(module) {
 
 
 /***/ },
-/* 27 */
+/* 25 */
 /***/ function(module, exports) {
 
 module.exports = XMLHttpRequest;
 
 
 /***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-
-$("[type='number']").keypress(function (evt) {
-    evt.preventDefault();
-});
-
-chairIndex = 7;
-ws = new WebSocket('ws://' + window.location.host + '/ws');
-ws.addEventListener('message', function(e) {
-    var msg = JSON.parse(e.data);
-    if(msg.method == "spin") {
-        rotateAnimation(msg.arg0);
-    } else if (msg.method == "ready") {
-        document.getElementById("bid-queue").innerHTML += '<li>'+msg.arg0.toLowerCase()+' '+msg.arg1+'</li>';
-    } else if (msg.method == "clear") {
-        document.getElementById("bid-queue").innerHTML = '';
-        var i;
-        for (i = 1; i <= 8; i++) {
-          document.getElementById('Chair'+i).getElementsByClassName('person')[0].style.visibility = 'hidden';
-        }
-        chairIndex = 7;
-    } else if (msg.method == "load") {
-        document.getElementById('Chair'+chairIndex).getElementsByClassName('person')[0].style.visibility = 'visible';
-        chairIndex++;
-        if (chairIndex == 9) {
-            chairIndex = 1;
-        }
-    }
-    if (msg.arg0.toLowerCase() == coinbase) {
-          updateView();
-    }
-});
-
-function rotateAnimation(degrees){
-    document.getElementById("Wheel").style.transform  = "rotate("+degrees+"deg)";
-    document.getElementById("Chair1").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair2").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair3").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair4").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair5").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair6").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair7").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("Chair8").style.transform = "rotate(-"+degrees+"deg)";
-    document.getElementById("degrees").innerHTML      = degrees;
-}
-
-window.addEventListener('load', function() {
-    // Check if Web3 has been injected by the browser:
-  if (typeof web3 !== 'undefined') {
-    // You have a web3 browser! Continue below!
-    startApp(web3);
-  } else {
-     // Warn the user that they need to get a web3 browser
-     // Or install MetaMask, maybe with a nice graphic.
-  }
-
-  document.getElementById("getFT").onclick = getFTs;
-  document.getElementById("approve-ft-button").onclick = approveFT;
-  document.getElementById("increase-bid-button").onclick = increaseBid;
-})
-
-const Eth = __webpack_require__(9);
-const ferrisAddress = '0x4cf649ce4e20372ea3ea29b66ddcca48213c490a';
-const ferrisContractABI = [{"constant":true,"inputs":[],"name":"beneficiary","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[],"name":"withdraw","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"bid","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getFerrisTokenAddress","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"}],"name":"getBid","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"chosenBidder","type":"address"},{"name":"amount","type":"uint256"}],"name":"accept","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[{"name":"ferrisTokenAddress","type":"address"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"eventId","type":"uint256"},{"indexed":false,"name":"bidder","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"NewBid","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"eventId","type":"uint256"},{"indexed":false,"name":"bidder","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"AcceptedBid","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"eventId","type":"uint256"},{"indexed":false,"name":"bidder","type":"address"},{"indexed":false,"name":"amount","type":"uint256"}],"name":"WithdrewBid","type":"event"}];
-const ferrisTokenContractABI = [{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"corruptExchange","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_subtractedValue","type":"uint256"}],"name":"decreaseApproval","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_addedValue","type":"uint256"}],"name":"increaseApproval","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"INITIAL_SUPPLY","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}];
-
-
-async function startApp(web3) {
-    eth = new Eth(web3.currentProvider);
-    ferris = eth.contract(ferrisContractABI).at(ferrisAddress);
-    const ferrisTokenAddress = await ferris.getFerrisTokenAddress();
-    ferrisToken = eth.contract(ferrisTokenContractABI).at(ferrisTokenAddress[0]);
-    coinbase = await eth.coinbase();
-    updateView();
-}
-
-async function updateView() {
-    document.getElementById("ferris-address").innerHTML = ferrisAddress;
-    
-    const beneficiary = await ferris.beneficiary();
-    document.getElementById("beneficiary-address").innerHTML = beneficiary[0];
-    
-    document.getElementById("user-address").innerHTML = coinbase;
-    
-    const userBalance = await ferrisToken.balanceOf(coinbase);
-    document.getElementById("user-balance").innerHTML = userBalance[0].toNumber();
-    
-    const userApprovedFTs = await(ferrisToken.allowance(coinbase, ferrisAddress))
-    document.getElementById("user-approved-fts").innerHTML = userApprovedFTs[0].toNumber();
-    document.getElementById("approve-ft-field").setAttribute("max", userBalance[0].toNumber() - userApprovedFTs[0].toNumber());
-
-    const userBid = await ferris.getBid(coinbase);
-    document.getElementById("user-bid").innerHTML = userBid[0].toNumber();
-    document.getElementById("increase-bid-field").setAttribute("max", userApprovedFTs[0].toNumber() - userBid[0].toNumber());
-}
-
-async function waitForTxToBeMined (txHash) {
-  $(':button').prop('disabled', true);
-  let txReceipt
-  while (!txReceipt) {
-    try {
-      txReceipt = await eth.getTransactionReceipt(txHash)
-    } catch (err) {
-      console.log("Tx Mine failed");
-    }
-  }
-  console.log("Tx Mined");
-  $(':button').prop('disabled', false);
-  updateView();
-}
-
-function getFTs(){
-    console.log("trying to get FT");
-    const amount = parseInt(document.getElementById("get-ft-field").value);
-    document.getElementById("get-ft-field").value = 0;
-    
-    ferrisToken.corruptExchange({from:coinbase, value:10000000000000000*amount}).then(function (txHash) {
-      console.log('Transaction sent');
-      console.dir(txHash);
-      waitForTxToBeMined(txHash);
-    });;
-}
-
-async function approveFT(){
-    console.log("trying to approve");
-    const amount = parseInt(document.getElementById("approve-ft-field").value);
-    document.getElementById("approve-ft-field").value = 0;
-    
-    ferrisToken.increaseApproval(ferrisAddress, amount, { from: coinbase }).then(function (txHash) {
-      console.log('Transaction sent');
-      console.dir(txHash);
-      waitForTxToBeMined(txHash);
-    });
-}
-
-async function increaseBid(){
-    console.log("trying to increase bid");
-    const amount = parseInt(document.getElementById("increase-bid-field").value);
-    document.getElementById("increase-bid-field").value = 0;
-    
-    ferris.bid(amount, { from: coinbase }).then(function (txHash) {
-      console.log('Transaction sent');
-      console.dir(txHash);
-      waitForTxToBeMined(txHash);
-    });
-}
-
-
+module.exports = __webpack_require__(10);
 
 
 /***/ }
-/******/ ]);
+/******/ ])
+});
+;
+//# sourceMappingURL=ethjs.js.map
