@@ -1,4 +1,4 @@
 ferris contract address:
-0xce971c9d809cd76049e3bbabd5c1191abeaedcab
+0x4cf649ce4e20372ea3ea29b66ddcca48213c490a
 private key of contract beneficiary:
-f7783c1e86d24b94bc0b52524ad2648c4173861e501d3ae31f19a87caf80ea93
+06cd9baa9c7520171b99ab3bfc753f3a498738dd269db9a62bd40970bd2311e6

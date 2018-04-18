@@ -140,11 +140,6 @@ func main() {
 
 func ferrisSetup(contractInfoFilename string) (*ethclient.Client, *bind.TransactOpts, *FerrisToken, *Ferris, common.Address) {
 
-	conn, err := ethclient.Dial("ws://127.0.0.1:8546")
-	if err != nil {
-		log.Fatalf("could not create ipc client: %v", err)
-	}
-
 	file, err := os.Open(contractInfoFilename)
 	if err != nil {
 		log.Fatal(err)
@@ -165,6 +160,12 @@ func ferrisSetup(contractInfoFilename string) (*ethclient.Client, *bind.Transact
 
 	privateKey, _ := crypto.HexToECDSA(privateKeyString)
 	auth := bind.NewKeyedTransactor(privateKey)
+
+
+	conn, err := ethclient.Dial("ws://127.0.0.1:8546")
+	if err != nil {
+		log.Fatalf("could not create ipc client: %v", err)
+	}
 
 	ferris, err := NewFerris(ferrisAddress, conn)
 	address, _ := ferris.GetFerrisTokenAddress(nil)

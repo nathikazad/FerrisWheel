@@ -11,6 +11,8 @@ Install instructions for ubuntu
 To run, open CLI
     geth --testnet --ws   #Might take a while if first time
     cd FerrisWheel
+    go get -d github.com/ethereum/go-ethereum
+    go get github.com/gorilla/websocket
     go run golang/main.go golang/ferris.go
 
 Open chrome http://localhost:8000/
