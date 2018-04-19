@@ -46,11 +46,8 @@ function rotateAnimation(degrees){
 window.addEventListener('load', function() {
     // Check if Web3 has been injected by the browser:
   if (typeof web3 !== 'undefined' ) {
-    startApp(web3);
     // You have a web3 browser! Continue below!
-    if(web3.version.network == "4") {
-       document.getElementById("ui").innerHTML = "Change network to Rinkeby";
-    }
+    startApp(web3);
   } else {
     alert("Get METAMASK!");
      // Warn the user that they need to get a web3 browser
@@ -69,11 +66,16 @@ const ferrisTokenContractABI = [{"constant":false,"inputs":[{"name":"_spender","
 
 async function startApp(web3) {
     eth = new Eth(web3.currentProvider);
-    ferris = eth.contract(ferrisContractABI).at(ferrisAddress);
-    const ferrisTokenAddress = await ferris.getFerrisTokenAddress();
-    ferrisToken = eth.contract(ferrisTokenContractABI).at(ferrisTokenAddress[0]);
-    coinbase = await eth.coinbase();
-    updateView();
+    var version = await eth.net_version();
+    if(version == "4") {
+      ferris = eth.contract(ferrisContractABI).at(ferrisAddress);
+      const ferrisTokenAddress = await ferris.getFerrisTokenAddress();
+      ferrisToken = eth.contract(ferrisTokenContractABI).at(ferrisTokenAddress[0]);
+      coinbase = await eth.coinbase();
+      updateView();
+    } else {
+      document.getElementById("ui").innerHTML = "Change network to Rinkeby";
+    }
 }
 
 async function updateView() {

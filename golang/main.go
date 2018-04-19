@@ -48,11 +48,11 @@ type Message struct {
 
 func main() {
 
-	contractInfoFilename := "golang/contractInfo.txt"
+	portNo := ":8000"
 	if (len(os.Args) == 2) { //file name is provided
-		contractInfoFilename = os.Args[1]
+		portNo = fmt.Sprintf(":%s", os.Args[1])
 	}
-
+	contractInfoFilename := "golang/contractInfo.txt"
 	conn, auth, _, ferris  := ferrisSetup(contractInfoFilename)
 	//calculate balance for each address and setup listeners to listen for events
 	go ferrisEventListeners(ferris)
@@ -70,9 +70,9 @@ func main() {
 	// Start listening for incoming chat messages
 	go handleMessages()
 
-	// Start the server on localhost port 8000 and log any errors
-	log.Println("http server started on :8000")
-	err := http.ListenAndServe(":8000", nil)
+	// Start the server on localhost portNo and log any errors
+	log.Printf("http server started on %s \n", portNo)
+	err := http.ListenAndServe(portNo, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

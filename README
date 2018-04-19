@@ -9,18 +9,15 @@ Install instructions for ubuntu
 
 
 To run, open CLI
-    geth --testnet --ws   #Might take a while if first time
+    geth --rinkeby --ws   #Might take a while if first time
     cd FerrisWheel
     go get -d github.com/ethereum/go-ethereum
     go get github.com/gorilla/websocket
-    go run golang/main.go golang/ferris.go
+    go build -o ferrisWheel golang/main.go golang/ferris.go
+    ./ferrisWheel
 
 Open chrome http://localhost:8000/
 
 If you want to run test script that generates random bids:
 Open separate tab in CLI
     go run golang/test/test.go golang/test/ferris.go
-
-To mess with client JS need npm and this webpack hack to generate js files
-Run npm install
-Run ./node_modules/webpack/bin/webpack.js ./public/app.js ./public/bundle.js
